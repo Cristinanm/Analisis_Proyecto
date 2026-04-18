@@ -1,0 +1,7 @@
+FastApi
+uvicorn[standard]
+SQLalchemy
+Pydantic-settings
+python-dotenv
+firebase-admi
+email-validetor
