@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+
+# Base de datos
+*.db
+
+# Node
+node_modules/
+dist/
+
+# VS Code
+.vscode/
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+.vite/
