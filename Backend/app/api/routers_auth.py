@@ -21,7 +21,7 @@ def endpoint_publico():
 @router.get("/protected")
 def endpoint_protegido(usuario_actual: dict = Depends(obtener_usuario_autenticado)):
     return {
-        "mensaje": "Ruta protegida disponible"
+        "mensaje": "Ruta protegida disponible",
         "uid": usuario_actual.get("uid"),
         "correo": usuario_actual.get("correo"),
     }
