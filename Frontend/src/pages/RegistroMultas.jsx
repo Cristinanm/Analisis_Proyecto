@@ -43,56 +43,36 @@ function RegistroMultas() {
   };
 
   return (
-    <div style={styles.container}>
-      <h1 style={styles.title}>Registro de Multas</h1>
+    <section className="space-y-5">
+      <header className="rounded-2xl border border-slate-700/70 bg-slate-900/80 p-5 shadow-xl">
+        <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Operacion</p>
+        <h2 className="mt-1 text-2xl font-semibold text-slate-100">Registro de Multas</h2>
+        <p className="mt-2 text-sm text-slate-300">
+          Consulta por placa y registra infracciones con trazabilidad para el vehiculo seleccionado.
+        </p>
+      </header>
 
-      <BuscarVehiculo
-        onBuscar={manejarBusqueda}
-        cargando={cargandoBusqueda}
-      />
+      <BuscarVehiculo onBuscar={manejarBusqueda} cargando={cargandoBusqueda} />
 
-      {error && <div style={styles.errorBox}>{error}</div>}
-      {mensaje && <div style={styles.successBox}>{mensaje}</div>}
+      {error && (
+        <div className="rounded-xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+          {error}
+        </div>
+      )}
+      {mensaje && (
+        <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+          {mensaje}
+        </div>
+      )}
 
       {vehiculo && (
-        <>
+        <div className="space-y-4">
           <DatosVehiculo vehiculo={vehiculo} />
-          <FormularioMulta
-            placa={vehiculo.placa}
-            onRegistrar={manejarRegistro}
-            cargando={cargandoRegistro}
-          />
-        </>
+          <FormularioMulta placa={vehiculo.placa} onRegistrar={manejarRegistro} cargando={cargandoRegistro} />
+        </div>
       )}
-    </div>
+    </section>
   );
 }
-
-const styles = {
-  container: {
-    maxWidth: "700px",
-    margin: "40px auto",
-    padding: "20px",
-    fontFamily: "Arial, sans-serif",
-  },
-  title: {
-    textAlign: "center",
-    marginBottom: "30px",
-  },
-  errorBox: {
-    backgroundColor: "#fee2e2",
-    color: "#991b1b",
-    padding: "12px",
-    borderRadius: "8px",
-    marginBottom: "16px",
-  },
-  successBox: {
-    backgroundColor: "#dcfce7",
-    color: "#166534",
-    padding: "12px",
-    borderRadius: "8px",
-    marginBottom: "16px",
-  },
-};
 
 export default RegistroMultas;

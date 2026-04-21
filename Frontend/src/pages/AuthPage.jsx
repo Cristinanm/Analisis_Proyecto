@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   forgotPassword,
-  getMyProfile,
   loginUser,
   registerUser,
   resetPassword,
@@ -15,15 +14,13 @@ const VIEWS = {
 };
 
 const INPUT_STYLE =
-  "w-full rounded-xl border border-slate-700 bg-slate-900/70 px-4 py-2.5 text-sm text-slate-100 outline-none transition focus:border-cyan-400";
+  "w-full rounded-xl border border-slate-600 bg-slate-950 px-4 py-2.5 text-sm text-slate-100 outline-none transition focus:border-cyan-400";
 
-function AuthPage() {
+function AuthPage({ onAuthenticated }) {
   const [view, setView] = useState(VIEWS.LOGIN);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [token, setToken] = useState(localStorage.getItem("token") || "");
-  const [perfil, setPerfil] = useState(null);
   const [tokenRecuperacion, setTokenRecuperacion] = useState("");
 
   const [registroData, setRegistroData] = useState({
@@ -43,25 +40,11 @@ function AuthPage() {
     nuevaContrasena: "",
   });
 
-  useEffect(() => {
-    if (!token) {
-      setPerfil(null);
-      return;
-    }
-
-    getMyProfile(token)
-      .then((data) => setPerfil(data))
-      .catch(() => {
-        localStorage.removeItem("token");
-        setToken("");
-      });
-  }, [token]);
-
   const title = useMemo(() => {
-    if (view === VIEWS.REGISTER) return "Crea tu cuenta";
-    if (view === VIEWS.FORGOT) return "Recuperar contrasena";
-    if (view === VIEWS.RESET) return "Restablecer contrasena";
-    return "Iniciar sesion";
+    if (view === VIEWS.REGISTER) return "Crear Cuenta";
+    if (view === VIEWS.FORGOT) return "Recuperar Contrasena";
+    if (view === VIEWS.RESET) return "Restablecer Contrasena";
+    return "Iniciar Sesion";
   }, [view]);
 
   const resetAlerts = () => {
@@ -91,8 +74,8 @@ function AuthPage() {
     try {
       const data = await loginUser(loginData);
       localStorage.setItem("token", data.access_token);
-      setToken(data.access_token);
       setSuccess("Autenticacion completada.");
+      if (onAuthenticated) onAuthenticated(data.access_token);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -134,63 +117,20 @@ function AuthPage() {
     }
   };
 
-  if (perfil) {
-    return (
-      <main className="relative flex min-h-screen items-center justify-center px-4 py-10">
-        <div className="absolute -left-6 top-12 h-36 w-36 rounded-full bg-cyan-500/30 blur-3xl" />
-        <div className="absolute bottom-12 right-0 h-40 w-40 rounded-full bg-amber-500/25 blur-3xl" />
-        <section className="w-full max-w-xl rounded-3xl border border-slate-700/70 bg-slate-900/85 p-8 shadow-2xl backdrop-blur">
-          <h1 className="text-3xl font-bold text-cyan-300">Bienvenido al sistema</h1>
-          <p className="mt-2 text-slate-300">
-            Acceso validado correctamente. Este usuario puede usar las funcionalidades de la plataforma.
-          </p>
-          <div className="mt-6 space-y-2 rounded-2xl bg-slate-800/80 p-5 text-sm">
-            <p>
-              <span className="text-slate-400">Nombre:</span> {perfil.nombres} {perfil.apellidos}
-            </p>
-            <p>
-              <span className="text-slate-400">Usuario:</span> {perfil.nombre_usuario}
-            </p>
-            <p>
-              <span className="text-slate-400">Correo:</span> {perfil.correo}
-            </p>
-            <p>
-              <span className="text-slate-400">Rol:</span>{" "}
-              <span className="rounded-md bg-cyan-900/70 px-2 py-1 text-cyan-200">{perfil.rol}</span>
-            </p>
-          </div>
-          <button
-            className="mt-6 w-full rounded-xl bg-amber-500 px-4 py-2.5 font-semibold text-slate-900 transition hover:bg-amber-400"
-            onClick={() => {
-              localStorage.removeItem("token");
-              setToken("");
-              setPerfil(null);
-              setView(VIEWS.LOGIN);
-            }}
-          >
-            Cerrar sesion
-          </button>
-        </section>
-      </main>
-    );
-  }
-
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10">
-      <div className="absolute left-4 top-10 h-40 w-40 animate-floaty rounded-full bg-cyan-500/35 blur-3xl" />
-      <div className="absolute bottom-8 right-4 h-44 w-44 animate-floaty rounded-full bg-amber-500/30 blur-3xl" />
-      <section className="relative w-full max-w-xl rounded-3xl border border-slate-700/70 bg-slate-900/85 p-7 shadow-2xl backdrop-blur md:p-10">
+    <main className="flex min-h-screen items-center justify-center px-4 py-10">
+      <section className="w-full max-w-xl rounded-3xl border border-slate-700 bg-slate-900/90 p-7 shadow-2xl md:p-10">
         <header className="mb-6">
-          <p className="text-xs uppercase tracking-[0.25em] text-cyan-300">Modulo de autenticacion</p>
-          <h1 className="mt-2 text-3xl font-bold text-slate-100">{title}</h1>
+          <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Acceso Seguro</p>
+          <h1 className="mt-2 text-3xl font-semibold text-slate-100">{title}</h1>
           <p className="mt-1 text-sm text-slate-300">
-            Registro seguro, validacion de credenciales y recuperacion de contrasena.
+            Plataforma corporativa con autenticacion y control de acceso.
           </p>
         </header>
 
-        {error && <p className="mb-4 rounded-xl border border-red-400/40 bg-red-500/15 p-3 text-sm text-red-200">{error}</p>}
+        {error && <p className="mb-4 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-sm text-rose-200">{error}</p>}
         {success && (
-          <p className="mb-4 rounded-xl border border-emerald-400/30 bg-emerald-500/15 p-3 text-sm text-emerald-200">
+          <p className="mb-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-200">
             {success}
           </p>
         )}
@@ -222,7 +162,7 @@ function AuthPage() {
               <button type="button" className="text-cyan-300 hover:text-cyan-200" onClick={() => setView(VIEWS.REGISTER)}>
                 Crear cuenta
               </button>
-              <button type="button" className="text-amber-300 hover:text-amber-200" onClick={() => setView(VIEWS.FORGOT)}>
+              <button type="button" className="text-slate-300 hover:text-slate-100" onClick={() => setView(VIEWS.FORGOT)}>
                 Olvide mi contrasena
               </button>
             </div>
@@ -232,44 +172,12 @@ function AuthPage() {
         {view === VIEWS.REGISTER && (
           <form className="space-y-4" onSubmit={onRegister}>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              <input
-                className={INPUT_STYLE}
-                placeholder="Nombres"
-                value={registroData.nombres}
-                onChange={(e) => setRegistroData({ ...registroData, nombres: e.target.value })}
-                required
-              />
-              <input
-                className={INPUT_STYLE}
-                placeholder="Apellidos"
-                value={registroData.apellidos}
-                onChange={(e) => setRegistroData({ ...registroData, apellidos: e.target.value })}
-                required
-              />
+              <input className={INPUT_STYLE} placeholder="Nombres" value={registroData.nombres} onChange={(e) => setRegistroData({ ...registroData, nombres: e.target.value })} required />
+              <input className={INPUT_STYLE} placeholder="Apellidos" value={registroData.apellidos} onChange={(e) => setRegistroData({ ...registroData, apellidos: e.target.value })} required />
             </div>
-            <input
-              className={INPUT_STYLE}
-              placeholder="Nombre de usuario"
-              value={registroData.nombre_usuario}
-              onChange={(e) => setRegistroData({ ...registroData, nombre_usuario: e.target.value })}
-              required
-            />
-            <input
-              className={INPUT_STYLE}
-              type="email"
-              placeholder="Correo electronico"
-              value={registroData.correo}
-              onChange={(e) => setRegistroData({ ...registroData, correo: e.target.value })}
-              required
-            />
-            <input
-              className={INPUT_STYLE}
-              type="password"
-              placeholder="Contrasena segura (Aa1!)"
-              value={registroData.contrasena}
-              onChange={(e) => setRegistroData({ ...registroData, contrasena: e.target.value })}
-              required
-            />
+            <input className={INPUT_STYLE} placeholder="Nombre de usuario" value={registroData.nombre_usuario} onChange={(e) => setRegistroData({ ...registroData, nombre_usuario: e.target.value })} required />
+            <input className={INPUT_STYLE} type="email" placeholder="Correo electronico" value={registroData.correo} onChange={(e) => setRegistroData({ ...registroData, correo: e.target.value })} required />
+            <input className={INPUT_STYLE} type="password" placeholder="Contrasena segura (Aa1!)" value={registroData.contrasena} onChange={(e) => setRegistroData({ ...registroData, contrasena: e.target.value })} required />
             <button
               disabled={loading}
               className="w-full rounded-xl bg-cyan-500 px-4 py-2.5 font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-70"
@@ -284,17 +192,10 @@ function AuthPage() {
 
         {view === VIEWS.FORGOT && (
           <form className="space-y-4" onSubmit={onForgot}>
-            <input
-              className={INPUT_STYLE}
-              type="email"
-              placeholder="Correo electronico"
-              value={correoRecuperacion}
-              onChange={(e) => setCorreoRecuperacion(e.target.value)}
-              required
-            />
+            <input className={INPUT_STYLE} type="email" placeholder="Correo electronico" value={correoRecuperacion} onChange={(e) => setCorreoRecuperacion(e.target.value)} required />
             <button
               disabled={loading}
-              className="w-full rounded-xl bg-amber-500 px-4 py-2.5 font-semibold text-slate-950 transition hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-70"
+              className="w-full rounded-xl bg-cyan-500 px-4 py-2.5 font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {loading ? "Generando..." : "Solicitar recuperacion"}
             </button>
@@ -306,21 +207,8 @@ function AuthPage() {
 
         {view === VIEWS.RESET && (
           <form className="space-y-4" onSubmit={onReset}>
-            <input
-              className={INPUT_STYLE}
-              placeholder="Token de recuperacion"
-              value={resetData.token}
-              onChange={(e) => setResetData({ ...resetData, token: e.target.value })}
-              required
-            />
-            <input
-              className={INPUT_STYLE}
-              type="password"
-              placeholder="Nueva contrasena segura (Aa1!)"
-              value={resetData.nuevaContrasena}
-              onChange={(e) => setResetData({ ...resetData, nuevaContrasena: e.target.value })}
-              required
-            />
+            <input className={INPUT_STYLE} placeholder="Token de recuperacion" value={resetData.token} onChange={(e) => setResetData({ ...resetData, token: e.target.value })} required />
+            <input className={INPUT_STYLE} type="password" placeholder="Nueva contrasena segura (Aa1!)" value={resetData.nuevaContrasena} onChange={(e) => setResetData({ ...resetData, nuevaContrasena: e.target.value })} required />
             {tokenRecuperacion && (
               <p className="rounded-xl bg-slate-800 p-3 text-xs text-slate-300">
                 Token temporal generado: <span className="text-cyan-300">{tokenRecuperacion}</span>
