@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.database import Base, engine
 from app.api.vehiculo_router import router as vehiculo_router
 from app.api.multa_router import router as multa_router
+from app.api.routers_auth import router as auth_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -22,6 +23,7 @@ app.add_middleware(
 
 app.include_router(vehiculo_router)
 app.include_router(multa_router)
+app.include_router(auth_router)
 
 @app.get("/")
 def root():

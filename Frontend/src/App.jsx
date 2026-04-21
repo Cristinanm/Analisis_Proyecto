@@ -1,7 +1,7 @@
-import RegistroMultas from "./pages/RegistroMultas";
+import AuthPage from "./pages/AuthPage";
 
 function App() {
-  return <RegistroMultas />;
+  return <AuthPage />;
 }
 
 export default App;

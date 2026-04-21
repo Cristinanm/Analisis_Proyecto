@@ -1,7 +1,8 @@
-FastApi
+fastapi
 uvicorn[standard]
-SQLalchemy
-Pydantic-settings
+sqlalchemy
+pydantic-settings
 python-dotenv
-firebase-admi
-email-validetor
+email-validator
+python-jose[cryptography]
+passlib[bcrypt]

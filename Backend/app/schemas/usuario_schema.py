@@ -1,14 +1,13 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr
 
 class UsuarioBase(BaseModel):
-    firebase_uid: str
     nombres: str
     apellidos: str
+    nombre_usuario: str
     correo: EmailStr
     rol: str
     activo: bool = True
 
 class UsuarioRespuesta(UsuarioBase):
     id: int
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
