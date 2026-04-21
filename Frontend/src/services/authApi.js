@@ -1,14 +1,49 @@
 const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
+function extractErrorMessage(data) {
+  if (!data) return "Ocurrio un error en autenticacion.";
+
+  if (typeof data.detail === "string") return data.detail;
+  if (typeof data.mensaje === "string") return data.mensaje;
+
+  if (Array.isArray(data.detail)) {
+    const messages = data.detail
+      .map((item) => {
+        if (!item || typeof item !== "object") return String(item || "");
+        const field = Array.isArray(item.loc) ? item.loc.join(".") : "campo";
+        const msg = item.msg || "valor invalido";
+        return `${field}: ${msg}`;
+      })
+      .filter(Boolean);
+
+    if (messages.length > 0) return messages.join(" | ");
+  }
+
+  if (typeof data.detail === "object") {
+    try {
+      return JSON.stringify(data.detail);
+    } catch {
+      return "Ocurrio un error en autenticacion.";
+    }
+  }
+
+  return "Ocurrio un error en autenticacion.";
+}
+
 async function request(path, options = {}) {
+  const mergedHeaders = {
+    "Content-Type": "application/json",
+    ...(options.headers || {}),
+  };
+
   const response = await fetch(`${API_URL}${path}`, {
-    headers: { "Content-Type": "application/json", ...(options.headers || {}) },
     ...options,
+    headers: mergedHeaders,
   });
 
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(data.detail || data.mensaje || "Ocurrio un error en autenticacion.");
+    throw new Error(extractErrorMessage(data));
   }
   return data;
 }
