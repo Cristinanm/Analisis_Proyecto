@@ -6,6 +6,8 @@ from app.core.security import create_access_token
 from app.database import get_db
 from app.models.usuario import Usuario
 from app.schemas.auth import (
+    AdminUserCreateRequest,
+    AdminUserUpdateRequest,
     ForgotPasswordRequest,
     ForgotPasswordResponse,
     LoginRequest,
@@ -13,17 +15,31 @@ from app.schemas.auth import (
     ResetPasswordRequest,
     RoleUpdateRequest,
     TokenResponse,
+    UserStatusUpdateRequest,
 )
 from app.schemas.usuario_schema import UsuarioRespuesta
 from app.services.auth_service import (
     actualizar_rol_usuario,
+    actualizar_estado_usuario,
+    actualizar_usuario_admin,
     autenticar_usuario,
+    crear_usuario_admin,
     crear_usuario,
+    eliminar_usuario_admin,
     generar_token_recuperacion,
+    listar_usuarios,
     restablecer_contrasena,
 )
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
+
+
+def _validar_admin(usuario_actual: Usuario) -> None:
+    if usuario_actual.rol != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Solo un administrador puede ejecutar esta accion.",
+        )
 
 
 @router.post("/register", response_model=UsuarioRespuesta, status_code=status.HTTP_201_CREATED)
@@ -66,10 +82,70 @@ def asignar_rol(
     db: Session = Depends(get_db),
     usuario_actual: Usuario = Depends(obtener_usuario_autenticado),
 ):
-    if usuario_actual.rol != "admin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Solo un administrador puede asignar roles.",
-        )
+    _validar_admin(usuario_actual)
 
     return actualizar_rol_usuario(db, user_id, payload.rol)
+
+
+@router.get("/admin/users", response_model=list[UsuarioRespuesta])
+def obtener_usuarios_admin(
+    db: Session = Depends(get_db),
+    usuario_actual: Usuario = Depends(obtener_usuario_autenticado),
+):
+    _validar_admin(usuario_actual)
+    return listar_usuarios(db)
+
+
+@router.patch("/admin/users/{user_id}/status", response_model=UsuarioRespuesta)
+def actualizar_estado(
+    user_id: int,
+    payload: UserStatusUpdateRequest,
+    db: Session = Depends(get_db),
+    usuario_actual: Usuario = Depends(obtener_usuario_autenticado),
+):
+    _validar_admin(usuario_actual)
+
+    if usuario_actual.id == user_id and payload.activo is False:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No puedes desactivar tu propio usuario administrador.",
+        )
+
+    return actualizar_estado_usuario(db, user_id, payload.activo)
+
+
+@router.post("/admin/users", response_model=UsuarioRespuesta, status_code=status.HTTP_201_CREATED)
+def crear_usuario_desde_admin(
+    payload: AdminUserCreateRequest,
+    db: Session = Depends(get_db),
+    usuario_actual: Usuario = Depends(obtener_usuario_autenticado),
+):
+    _validar_admin(usuario_actual)
+    return crear_usuario_admin(db, payload)
+
+
+@router.put("/admin/users/{user_id}", response_model=UsuarioRespuesta)
+def editar_usuario_desde_admin(
+    user_id: int,
+    payload: AdminUserUpdateRequest,
+    db: Session = Depends(get_db),
+    usuario_actual: Usuario = Depends(obtener_usuario_autenticado),
+):
+    _validar_admin(usuario_actual)
+    if usuario_actual.id == user_id and payload.activo is False:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No puedes desactivar tu propio usuario administrador.",
+        )
+    return actualizar_usuario_admin(db, user_id, payload)
+
+
+@router.delete("/admin/users/{user_id}")
+def eliminar_usuario_desde_admin(
+    user_id: int,
+    db: Session = Depends(get_db),
+    usuario_actual: Usuario = Depends(obtener_usuario_autenticado),
+):
+    _validar_admin(usuario_actual)
+    eliminar_usuario_admin(db, user_id, usuario_actual.id)
+    return {"mensaje": "Usuario eliminado correctamente."}

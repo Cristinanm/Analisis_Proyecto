@@ -35,3 +35,26 @@ class ResetPasswordRequest(BaseModel):
 
 class RoleUpdateRequest(BaseModel):
     rol: str = Field(min_length=4, max_length=30)
+
+
+class UserStatusUpdateRequest(BaseModel):
+    activo: bool
+
+
+class AdminUserCreateRequest(BaseModel):
+    nombres: str = Field(min_length=2, max_length=100)
+    apellidos: str = Field(min_length=2, max_length=100)
+    nombre_usuario: str = Field(min_length=4, max_length=50)
+    correo: EmailStr
+    contrasena: str = Field(min_length=8, max_length=72)
+    rol: str = Field(min_length=4, max_length=30, default="usuario")
+    activo: bool = True
+
+
+class AdminUserUpdateRequest(BaseModel):
+    nombres: str | None = Field(default=None, min_length=2, max_length=100)
+    apellidos: str | None = Field(default=None, min_length=2, max_length=100)
+    nombre_usuario: str | None = Field(default=None, min_length=4, max_length=50)
+    correo: EmailStr | None = None
+    rol: str | None = Field(default=None, min_length=4, max_length=30)
+    activo: bool | None = None

@@ -51,25 +51,25 @@ function FormularioMulta({ placa, onRegistrar, cargando }) {
   };
 
   const inputClass =
-    "w-full rounded-xl border border-slate-600 bg-slate-950 px-4 py-2.5 text-sm text-slate-100 outline-none transition focus:border-cyan-400";
+    "w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-2.5 text-sm text-zinc-100 outline-none transition focus:border-amber-300/60";
 
   return (
     <form
       onSubmit={manejarSubmit}
-      className="space-y-4 rounded-2xl border border-slate-700/70 bg-slate-900/80 p-5 shadow-xl"
+      className="space-y-4 rounded-2xl border border-zinc-800 bg-zinc-900/80 p-5 shadow-xl"
     >
-      <h3 className="text-base font-semibold uppercase tracking-[0.15em] text-cyan-300">
+      <h3 className="text-base font-semibold uppercase tracking-[0.15em] text-zinc-100">
         Registrar multa para {placa}
       </h3>
 
       <div>
-        <label className="mb-1 block text-xs uppercase tracking-[0.15em] text-slate-400">Fecha</label>
+        <label className="mb-1 block text-xs uppercase tracking-[0.15em] text-zinc-500">Fecha</label>
         <input type="date" name="fecha" value={formData.fecha} onChange={manejarCambio} className={inputClass} />
         {errores.fecha && <span className="mt-1 block text-xs text-rose-300">{errores.fecha}</span>}
       </div>
 
       <div>
-        <label className="mb-1 block text-xs uppercase tracking-[0.15em] text-slate-400">Tipo de infraccion</label>
+        <label className="mb-1 block text-xs uppercase tracking-[0.15em] text-zinc-500">Tipo de infraccion</label>
         <input
           type="text"
           name="tipo_infraccion"
@@ -84,7 +84,7 @@ function FormularioMulta({ placa, onRegistrar, cargando }) {
       </div>
 
       <div>
-        <label className="mb-1 block text-xs uppercase tracking-[0.15em] text-slate-400">Descripcion</label>
+        <label className="mb-1 block text-xs uppercase tracking-[0.15em] text-zinc-500">Descripcion</label>
         <textarea
           name="descripcion"
           value={formData.descripcion}
@@ -98,7 +98,7 @@ function FormularioMulta({ placa, onRegistrar, cargando }) {
       </div>
 
       <div>
-        <label className="mb-1 block text-xs uppercase tracking-[0.15em] text-slate-400">Monto base</label>
+        <label className="mb-1 block text-xs uppercase tracking-[0.15em] text-zinc-500">Monto base</label>
         <input
           type="number"
           name="monto_base"
@@ -112,14 +112,14 @@ function FormularioMulta({ placa, onRegistrar, cargando }) {
         )}
       </div>
 
-      <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
+      <div className="rounded-xl border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-xs text-amber-100">
         Estado inicial: pendiente
       </div>
 
       <button
         type="submit"
         disabled={cargando}
-        className="w-full rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-70"
+        className="w-full rounded-xl bg-amber-300 px-4 py-2.5 text-sm font-semibold text-zinc-950 transition hover:bg-amber-200 disabled:cursor-not-allowed disabled:opacity-70"
       >
         {cargando ? "Registrando..." : "Registrar multa"}
       </button>

@@ -44,10 +44,10 @@ function RegistroMultas() {
 
   return (
     <section className="space-y-5">
-      <header className="rounded-2xl border border-slate-700/70 bg-slate-900/80 p-5 shadow-xl">
-        <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Operacion</p>
-        <h2 className="mt-1 text-2xl font-semibold text-slate-100">Registro de Multas</h2>
-        <p className="mt-2 text-sm text-slate-300">
+      <header className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-5 shadow-xl">
+        <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">Operacion</p>
+        <h2 className="mt-1 text-2xl font-semibold text-zinc-100">Registro de Multas</h2>
+        <p className="mt-2 text-sm text-zinc-300">
           Consulta por placa y registra infracciones con trazabilidad para el vehiculo seleccionado.
         </p>
       </header>

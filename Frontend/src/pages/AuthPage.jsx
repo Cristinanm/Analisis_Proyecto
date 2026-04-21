@@ -14,7 +14,7 @@ const VIEWS = {
 };
 
 const INPUT_STYLE =
-  "w-full rounded-xl border border-slate-600 bg-slate-950 px-4 py-2.5 text-sm text-slate-100 outline-none transition focus:border-cyan-400";
+  "w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-2.5 text-sm text-zinc-100 outline-none transition focus:border-amber-300/60";
 
 function AuthPage({ onAuthenticated }) {
   const [view, setView] = useState(VIEWS.LOGIN);
@@ -119,11 +119,11 @@ function AuthPage({ onAuthenticated }) {
 
   return (
     <main className="flex min-h-screen items-center justify-center px-4 py-10">
-      <section className="w-full max-w-xl rounded-3xl border border-slate-700 bg-slate-900/90 p-7 shadow-2xl md:p-10">
+      <section className="w-full max-w-xl rounded-3xl border border-zinc-800 bg-zinc-900/95 p-7 shadow-2xl md:p-10">
         <header className="mb-6">
-          <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Acceso Seguro</p>
-          <h1 className="mt-2 text-3xl font-semibold text-slate-100">{title}</h1>
-          <p className="mt-1 text-sm text-slate-300">
+          <p className="text-xs uppercase tracking-[0.24em] text-zinc-500">Acceso Seguro</p>
+          <h1 className="mt-2 text-3xl font-semibold text-zinc-100">{title}</h1>
+          <p className="mt-1 text-sm text-zinc-400">
             Plataforma corporativa con autenticacion y control de acceso.
           </p>
         </header>
@@ -154,15 +154,15 @@ function AuthPage({ onAuthenticated }) {
             />
             <button
               disabled={loading}
-              className="w-full rounded-xl bg-cyan-500 px-4 py-2.5 font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-70"
+              className="w-full rounded-xl bg-amber-300 px-4 py-2.5 font-semibold text-zinc-950 transition hover:bg-amber-200 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {loading ? "Validando..." : "Ingresar"}
             </button>
             <div className="flex items-center justify-between text-sm">
-              <button type="button" className="text-cyan-300 hover:text-cyan-200" onClick={() => setView(VIEWS.REGISTER)}>
+              <button type="button" className="text-amber-300 hover:text-amber-200" onClick={() => setView(VIEWS.REGISTER)}>
                 Crear cuenta
               </button>
-              <button type="button" className="text-slate-300 hover:text-slate-100" onClick={() => setView(VIEWS.FORGOT)}>
+              <button type="button" className="text-zinc-400 hover:text-zinc-200" onClick={() => setView(VIEWS.FORGOT)}>
                 Olvide mi contrasena
               </button>
             </div>
@@ -180,11 +180,11 @@ function AuthPage({ onAuthenticated }) {
             <input className={INPUT_STYLE} type="password" placeholder="Contrasena segura (Aa1!)" value={registroData.contrasena} onChange={(e) => setRegistroData({ ...registroData, contrasena: e.target.value })} required />
             <button
               disabled={loading}
-              className="w-full rounded-xl bg-cyan-500 px-4 py-2.5 font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-70"
+              className="w-full rounded-xl bg-amber-300 px-4 py-2.5 font-semibold text-zinc-950 transition hover:bg-amber-200 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {loading ? "Creando..." : "Registrar"}
             </button>
-            <button type="button" className="w-full text-sm text-slate-300 hover:text-slate-100" onClick={() => setView(VIEWS.LOGIN)}>
+            <button type="button" className="w-full text-sm text-zinc-400 hover:text-zinc-200" onClick={() => setView(VIEWS.LOGIN)}>
               Volver a iniciar sesion
             </button>
           </form>
@@ -195,11 +195,11 @@ function AuthPage({ onAuthenticated }) {
             <input className={INPUT_STYLE} type="email" placeholder="Correo electronico" value={correoRecuperacion} onChange={(e) => setCorreoRecuperacion(e.target.value)} required />
             <button
               disabled={loading}
-              className="w-full rounded-xl bg-cyan-500 px-4 py-2.5 font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-70"
+              className="w-full rounded-xl bg-amber-300 px-4 py-2.5 font-semibold text-zinc-950 transition hover:bg-amber-200 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {loading ? "Generando..." : "Solicitar recuperacion"}
             </button>
-            <button type="button" className="w-full text-sm text-slate-300 hover:text-slate-100" onClick={() => setView(VIEWS.LOGIN)}>
+            <button type="button" className="w-full text-sm text-zinc-400 hover:text-zinc-200" onClick={() => setView(VIEWS.LOGIN)}>
               Volver
             </button>
           </form>
@@ -210,17 +210,17 @@ function AuthPage({ onAuthenticated }) {
             <input className={INPUT_STYLE} placeholder="Token de recuperacion" value={resetData.token} onChange={(e) => setResetData({ ...resetData, token: e.target.value })} required />
             <input className={INPUT_STYLE} type="password" placeholder="Nueva contrasena segura (Aa1!)" value={resetData.nuevaContrasena} onChange={(e) => setResetData({ ...resetData, nuevaContrasena: e.target.value })} required />
             {tokenRecuperacion && (
-              <p className="rounded-xl bg-slate-800 p-3 text-xs text-slate-300">
-                Token temporal generado: <span className="text-cyan-300">{tokenRecuperacion}</span>
+              <p className="rounded-xl border border-zinc-700 bg-zinc-950 p-3 text-xs text-zinc-300">
+                Token temporal generado: <span className="text-amber-200">{tokenRecuperacion}</span>
               </p>
             )}
             <button
               disabled={loading}
-              className="w-full rounded-xl bg-cyan-500 px-4 py-2.5 font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-70"
+              className="w-full rounded-xl bg-amber-300 px-4 py-2.5 font-semibold text-zinc-950 transition hover:bg-amber-200 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {loading ? "Actualizando..." : "Restablecer contrasena"}
             </button>
-            <button type="button" className="w-full text-sm text-slate-300 hover:text-slate-100" onClick={() => setView(VIEWS.LOGIN)}>
+            <button type="button" className="w-full text-sm text-zinc-400 hover:text-zinc-200" onClick={() => setView(VIEWS.LOGIN)}>
               Volver a iniciar sesion
             </button>
           </form>
