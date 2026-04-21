@@ -15,10 +15,10 @@ function FormularioMulta({ placa, onRegistrar, cargando }) {
 
     if (!formData.fecha) nuevosErrores.fecha = "La fecha es obligatoria";
     if (!formData.tipo_infraccion.trim()) {
-      nuevosErrores.tipo_infraccion = "El tipo de infracción es obligatorio";
+      nuevosErrores.tipo_infraccion = "El tipo de infraccion es obligatorio";
     }
     if (!formData.descripcion.trim()) {
-      nuevosErrores.descripcion = "La descripción es obligatoria";
+      nuevosErrores.descripcion = "La descripcion es obligatoria";
     }
     if (!formData.monto_base || Number(formData.monto_base) <= 0) {
       nuevosErrores.monto_base = "El monto base debe ser mayor que 0";
@@ -50,124 +50,81 @@ function FormularioMulta({ placa, onRegistrar, cargando }) {
     });
   };
 
-  return (
-    <form onSubmit={manejarSubmit} style={styles.form}>
-      <h3>Registrar multa</h3>
+  const inputClass =
+    "w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-2.5 text-sm text-zinc-100 outline-none transition focus:border-amber-300/60";
 
-      <div style={styles.group}>
-        <label>Fecha</label>
-        <input
-          type="date"
-          name="fecha"
-          value={formData.fecha}
-          onChange={manejarCambio}
-          style={styles.input}
-        />
-        {errores.fecha && <span style={styles.error}>{errores.fecha}</span>}
+  return (
+    <form
+      onSubmit={manejarSubmit}
+      className="space-y-4 rounded-2xl border border-zinc-800 bg-zinc-900/80 p-5 shadow-xl"
+    >
+      <h3 className="text-base font-semibold uppercase tracking-[0.15em] text-zinc-100">
+        Registrar multa para {placa}
+      </h3>
+
+      <div>
+        <label className="mb-1 block text-xs uppercase tracking-[0.15em] text-zinc-500">Fecha</label>
+        <input type="date" name="fecha" value={formData.fecha} onChange={manejarCambio} className={inputClass} />
+        {errores.fecha && <span className="mt-1 block text-xs text-rose-300">{errores.fecha}</span>}
       </div>
 
-      <div style={styles.group}>
-        <label>Tipo de infracción</label>
+      <div>
+        <label className="mb-1 block text-xs uppercase tracking-[0.15em] text-zinc-500">Tipo de infraccion</label>
         <input
           type="text"
           name="tipo_infraccion"
           value={formData.tipo_infraccion}
           onChange={manejarCambio}
-          style={styles.input}
+          className={inputClass}
           placeholder="Ej. Exceso de velocidad"
         />
         {errores.tipo_infraccion && (
-          <span style={styles.error}>{errores.tipo_infraccion}</span>
+          <span className="mt-1 block text-xs text-rose-300">{errores.tipo_infraccion}</span>
         )}
       </div>
 
-      <div style={styles.group}>
-        <label>Descripción</label>
+      <div>
+        <label className="mb-1 block text-xs uppercase tracking-[0.15em] text-zinc-500">Descripcion</label>
         <textarea
           name="descripcion"
           value={formData.descripcion}
           onChange={manejarCambio}
-          style={styles.textarea}
-          placeholder="Detalle de la infracción"
+          className={`${inputClass} min-h-28 resize-y`}
+          placeholder="Detalle de la infraccion"
         />
         {errores.descripcion && (
-          <span style={styles.error}>{errores.descripcion}</span>
+          <span className="mt-1 block text-xs text-rose-300">{errores.descripcion}</span>
         )}
       </div>
 
-      <div style={styles.group}>
-        <label>Monto base</label>
+      <div>
+        <label className="mb-1 block text-xs uppercase tracking-[0.15em] text-zinc-500">Monto base</label>
         <input
           type="number"
           name="monto_base"
           value={formData.monto_base}
           onChange={manejarCambio}
-          style={styles.input}
+          className={inputClass}
           placeholder="Ej. 500"
         />
         {errores.monto_base && (
-          <span style={styles.error}>{errores.monto_base}</span>
+          <span className="mt-1 block text-xs text-rose-300">{errores.monto_base}</span>
         )}
       </div>
 
-      <div style={styles.estado}>
-        <strong>Estado inicial:</strong> pendiente
+      <div className="rounded-xl border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-xs text-amber-100">
+        Estado inicial: pendiente
       </div>
 
-      <button type="submit" style={styles.button} disabled={cargando}>
+      <button
+        type="submit"
+        disabled={cargando}
+        className="w-full rounded-xl bg-amber-300 px-4 py-2.5 text-sm font-semibold text-zinc-950 transition hover:bg-amber-200 disabled:cursor-not-allowed disabled:opacity-70"
+      >
         {cargando ? "Registrando..." : "Registrar multa"}
       </button>
     </form>
   );
 }
-
-const styles = {
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "16px",
-    backgroundColor: "#f9fafb",
-    padding: "20px",
-    borderRadius: "10px",
-    border: "1px solid #ddd",
-  },
-  group: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "6px",
-  },
-  input: {
-    padding: "10px",
-    borderRadius: "8px",
-    border: "1px solid #ccc",
-    fontSize: "15px",
-  },
-  textarea: {
-    padding: "10px",
-    borderRadius: "8px",
-    border: "1px solid #ccc",
-    fontSize: "15px",
-    minHeight: "90px",
-    resize: "vertical",
-  },
-  button: {
-    padding: "12px",
-    borderRadius: "8px",
-    border: "none",
-    backgroundColor: "#16a34a",
-    color: "white",
-    fontSize: "16px",
-    cursor: "pointer",
-  },
-  estado: {
-    backgroundColor: "#fef3c7",
-    padding: "10px",
-    borderRadius: "8px",
-  },
-  error: {
-    color: "red",
-    fontSize: "14px",
-  },
-};
 
 export default FormularioMulta;

@@ -1,18 +1,21 @@
-from sqlalchemy import Boolean, Integer, String
-from sqlalchemy.orm import Mapped, mapped_column
-from app.db.base import Base
+from datetime import datetime
+from sqlalchemy import Boolean, Column, DateTime, Integer, String
+from app.database import Base
+
 
 class Usuario(Base):
     __tablename__ = "usuarios"
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    firebase_uid: Mapped[str] = mapped_column(String(255), unique=True, index=True,
-     nullable=False)
-     nombres: Mapped[str] = mapped_column(String(255), nullable=False)
-     apellidos: Mapped[str] = mapped_column(String(255), nullable=False)
-     correo: Mapped[str] = mapped_column(String(255), unique=True, index=True, 
-     nullable=False)
-     rol: Mapped[str] = mapped_column(String(50), nullable=False)
-     activo: Mapped[bool] = mapped_column(Boolean, default=True)
-     
+
+    id = Column(Integer, primary_key=True, index=True)
+    nombres = Column(String(100), nullable=False)
+    apellidos = Column(String(100), nullable=False)
+    nombre_usuario = Column(String(50), unique=True, index=True, nullable=False)
+    correo = Column(String(120), unique=True, index=True, nullable=False)
+    hashed_password = Column(String(255), nullable=False)
+    rol = Column(String(30), nullable=False, default="usuario")
+    activo = Column(Boolean, nullable=False, default=True)
+    reset_token = Column(String(255), nullable=True, index=True)
+    reset_token_expira = Column(DateTime, nullable=True)
+    creado_en = Column(DateTime, nullable=False, default=datetime.utcnow)
 
 
