@@ -3,6 +3,7 @@ import AuthPage from "./pages/AuthPage";
 import GestionPropietarios from "./pages/GestionPropietarios";
 import GestionUsuarios from "./pages/GestionUsuarios";
 import RegistroMultas from "./pages/RegistroMultas";
+import ReporteMultasPendientes from "./pages/ReporteMultasPendientes";
 import {
   HomeIcon,
   LogoutIcon,
@@ -16,6 +17,7 @@ const MODULOS = [
   { key: "inicio", label: "Inicio", icon: HomeIcon },
   { key: "multas", label: "Registro de Multas", icon: TicketIcon },
   { key: "personas", label: "Modulo Personas", icon: UsersIcon },
+  { key: "reportes", label: "Reportes", icon: TicketIcon },
   { key: "perfil", label: "Mi Perfil", icon: UserIcon },
   { key: "usuarios", label: "Gestion Usuarios", icon: UsersIcon },
 ];
@@ -46,6 +48,10 @@ function App() {
   const contenido = useMemo(() => {
     if (moduloActivo === "multas") return <RegistroMultas />;
     if (moduloActivo === "personas") return <GestionPropietarios />;
+
+     if (moduloActivo === "reportes") {
+    return <ReporteMultasPendientes />;
+  }
 
     if (moduloActivo === "perfil") {
       return (
