@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import AuthPage from "./pages/AuthPage";
 import GestionUsuarios from "./pages/GestionUsuarios";
 import RegistroMultas from "./pages/RegistroMultas";
+import ReporteMultasPendientes from "./pages/ReporteMultasPendientes";
 import {
   HomeIcon,
   LogoutIcon,
@@ -14,6 +15,7 @@ import { getMyProfile } from "./services/authApi";
 const MODULOS = [
   { key: "inicio", label: "Inicio", icon: HomeIcon },
   { key: "multas", label: "Registro de Multas", icon: TicketIcon },
+  { key: "reportes", label: "Reportes", icon: TicketIcon },
   { key: "perfil", label: "Mi Perfil", icon: UserIcon },
   { key: "usuarios", label: "Gestion Usuarios", icon: UsersIcon },
 ];
@@ -43,6 +45,10 @@ function App() {
 
   const contenido = useMemo(() => {
     if (moduloActivo === "multas") return <RegistroMultas />;
+
+     if (moduloActivo === "reportes") {
+    return <ReporteMultasPendientes />;
+  }
 
     if (moduloActivo === "perfil") {
       return (
