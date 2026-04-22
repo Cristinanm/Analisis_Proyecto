@@ -11,6 +11,8 @@ function RegistroMultas() {
   const [cargandoBusqueda, setCargandoBusqueda] = useState(false);
   const [cargandoRegistro, setCargandoRegistro] = useState(false);
 
+  const [formKey, setFormKey] = useState(0); // 🔥 clave para reiniciar formulario
+
   const manejarBusqueda = async (placa) => {
     setMensaje("");
     setError("");
@@ -35,6 +37,9 @@ function RegistroMultas() {
     try {
       const response = await registrarMulta(datosMulta);
       setMensaje(response.mensaje || "Multa registrada correctamente");
+
+      setFormKey(prev => prev + 1);
+
     } catch (err) {
       setError(err.message);
     } finally {
@@ -59,16 +64,23 @@ function RegistroMultas() {
           {error}
         </div>
       )}
-      {mensaje && (
-        <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
-          {mensaje}
-        </div>
-      )}
 
       {vehiculo && (
         <div className="space-y-4">
           <DatosVehiculo vehiculo={vehiculo} />
-          <FormularioMulta placa={vehiculo.placa} onRegistrar={manejarRegistro} cargando={cargandoRegistro} />
+
+          <FormularioMulta
+            key={formKey}
+            placa={vehiculo.placa}
+            onRegistrar={manejarRegistro}
+            cargando={cargandoRegistro}
+          />
+
+          {mensaje && (
+            <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+              {mensaje}
+            </div>
+          )}
         </div>
       )}
     </section>
