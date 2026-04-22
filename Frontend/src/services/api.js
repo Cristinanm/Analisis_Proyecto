@@ -29,3 +29,55 @@ export async function registrarMulta(payload) {
 
   return data;
 }
+
+export async function crearPropietario(payload) {
+  const response = await fetch(`${API_URL}/api/propietarios/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "No se pudo registrar el propietario");
+  }
+
+  return data;
+}
+
+export async function buscarPropietarios({ dpi, nombre }) {
+  const params = new URLSearchParams();
+
+  if (dpi) params.append("dpi", dpi);
+  if (nombre) params.append("nombre", nombre);
+
+  const response = await fetch(`${API_URL}/api/propietarios/buscar?${params.toString()}`);
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "No se pudieron consultar propietarios");
+  }
+
+  return data;
+}
+
+export async function actualizarPropietario(propietarioId, payload) {
+  const response = await fetch(`${API_URL}/api/propietarios/${propietarioId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "No se pudo actualizar el propietario");
+  }
+
+  return data;
+}
