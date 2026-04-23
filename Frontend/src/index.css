@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: "Poppins", "Segoe UI", sans-serif;
+}
+
+body {
+  @apply min-h-screen bg-zinc-950 text-zinc-100;
+  background-image:
+    radial-gradient(circle at 12% 8%, rgba(39, 39, 42, 0.45), transparent 35%),
+    radial-gradient(circle at 88% 4%, rgba(24, 24, 27, 0.55), transparent 40%),
+    linear-gradient(180deg, #09090b 0%, #111113 100%);
+}
+
+#root {
+  @apply min-h-screen;
+}
