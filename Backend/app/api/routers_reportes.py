@@ -1,11 +1,11 @@
 from datetime import datetime
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db
 from app.models.multa import Multa
 from app.models.vehiculo import Vehiculo
-from app.schemas.reporte import ReporteMulta
+from app.schemas.reporte import ReporteMultaPagada
 
 router = APIRouter(prefix="/reportes", tags=["Reportes"])
 
@@ -26,60 +26,100 @@ def convertir_fecha(fecha_str: str):
     return None
 
 
-def calcular_descuento_o_mora(multa: Multa) -> float:
-    fecha_multa = convertir_fecha(multa.fecha)
-    if not fecha_multa:
-        return 0.0
-
-    hoy = datetime.now()
-    dias = (hoy.date() - fecha_multa.date()).days
-
-    if dias <= 30:
-        return round(-(multa.monto_base * 0.10), 2)  # descuento 10%
-    else:
-        return round(multa.monto_base * 0.15, 2)  # mora 15%
-
-
-@router.get("/multas", response_model=list[ReporteMulta])
-def obtener_reporte_multas(
-    estado: str = Query("pendiente"),
-    placa: str | None = Query(None),
-    fecha: str | None = Query(None),
+@router.get("/multas-pagadas")
+def obtener_reporte_multas_pagadas(
+    fecha_inicio: str = Query(...),
+    fecha_fin: str = Query(...),
     db: Session = Depends(get_db),
 ):
-    query = (
+    fecha_inicio_dt = convertir_fecha(fecha_inicio)
+    fecha_fin_dt = convertir_fecha(fecha_fin)
+
+    if not fecha_inicio_dt or not fecha_fin_dt:
+        raise HTTPException(status_code=400, detail="Formato de fecha invalido. Use YYYY-MM-DD")
+
+    if fecha_inicio_dt > fecha_fin_dt:
+        raise HTTPException(status_code=400, detail="La fecha inicio no puede ser mayor que la fecha fin")
+
+    multas = (
         db.query(Multa)
         .join(Vehiculo)
         .options(joinedload(Multa.vehiculo))
-        .filter(Multa.estado == estado)
+        .filter(Multa.estado == "pagada")
+        .all()
     )
 
-    if placa:
-        query = query.filter(Vehiculo.placa.ilike(f"%{placa}%"))
-
-    multas = query.all()
-
-    resultado = []
+    items = []
+    total_ingresos = 0.0
 
     for multa in multas:
-        # filtro por fecha exacta desde frontend
-        if fecha and multa.fecha != fecha:
+        if not multa.fecha_pago:
             continue
 
-        ajuste = calcular_descuento_o_mora(multa)
-        total_actual = round(multa.monto_base + ajuste, 2)
+        fecha_pago_dt = convertir_fecha(multa.fecha_pago)
+        if not fecha_pago_dt:
+            continue
 
-        resultado.append(
-            ReporteMulta(
-                id=multa.id,
-                placa=multa.vehiculo.placa if multa.vehiculo else "",
-                fecha=multa.fecha,
-                tipo_infraccion=multa.tipo_infraccion,
-                monto_base=round(multa.monto_base, 2),
-                descuento_o_mora=ajuste,
-                total_actual=total_actual,
-                estado=multa.estado,
-            )
-        )
+        if fecha_inicio_dt.date() <= fecha_pago_dt.date() <= fecha_fin_dt.date():
+            monto_final = float(multa.monto_final or 0.0)
 
-    return resultado
+            item = {
+                "id": multa.id,
+                "placa": multa.vehiculo.placa if multa.vehiculo else "",
+                "id_factura": multa.id_factura,
+                "fecha_pago": multa.fecha_pago,
+                "monto_base": float(multa.monto_base),
+                "descuento_mora": float(multa.descuento_mora or 0.0),
+                "monto_final": monto_final,
+                "estado": multa.estado,
+            }
+
+            items.append(item)
+            total_ingresos += monto_final
+
+    return {
+        "items": items,
+        "total_ingresos": round(total_ingresos, 2)
+    }
+
+
+@router.put("/multas/{multa_id}/pagar")
+def pagar_multa(
+    multa_id: int,
+    descuento_mora: float = Query(0.0),
+    db: Session = Depends(get_db),
+):
+    multa = db.query(Multa).filter(Multa.id == multa_id).first()
+
+    if not multa:
+        raise HTTPException(status_code=404, detail="Multa no encontrada")
+
+    if multa.estado == "pagada":
+        raise HTTPException(status_code=400, detail="La multa ya fue pagada")
+
+    ahora = datetime.now()
+    fecha_pago = ahora.strftime("%Y-%m-%d")
+    id_factura = f"FAC-{multa.id}-{ahora.strftime('%Y%m%d%H%M%S')}"
+
+    monto_final = round(float(multa.monto_base) + float(descuento_mora), 2)
+
+    multa.estado = "pagada"
+    multa.fecha_pago = fecha_pago
+    multa.id_factura = id_factura
+    multa.descuento_mora = round(float(descuento_mora), 2)
+    multa.monto_final = monto_final
+
+    db.commit()
+    db.refresh(multa)
+
+    return {
+        "message": "Multa pagada correctamente",
+        "multa": {
+            "id": multa.id,
+            "estado": multa.estado,
+            "fecha_pago": multa.fecha_pago,
+            "id_factura": multa.id_factura,
+            "descuento_mora": multa.descuento_mora,
+            "monto_final": multa.monto_final,
+        }
+    }
