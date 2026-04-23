@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8000";
+const API_URL = "http://127.0.0.1:8001";
 
 export async function buscarVehiculoPorPlaca(placa) {
   const response = await fetch(`${API_URL}/api/vehiculos/placa/${placa}`);

@@ -3,6 +3,7 @@ import AuthPage from "./pages/AuthPage";
 import GestionPropietarios from "./pages/GestionPropietarios";
 import GestionUsuarios from "./pages/GestionUsuarios";
 import RegistroMultas from "./pages/RegistroMultas";
+import ReporteMultasPagadas from "./pages/ReporteMultasPagadas";
 import ReporteMultasPendientes from "./pages/ReporteMultasPendientes";
 import {
   HomeIcon,
@@ -49,9 +50,9 @@ function App() {
     if (moduloActivo === "multas") return <RegistroMultas />;
     if (moduloActivo === "personas") return <GestionPropietarios />;
 
-     if (moduloActivo === "reportes") {
-    return <ReporteMultasPendientes />;
-  }
+    if (moduloActivo === "reportes") {
+      return <ReporteMultasPagadas />;
+    }
 
     if (moduloActivo === "perfil") {
       return (
