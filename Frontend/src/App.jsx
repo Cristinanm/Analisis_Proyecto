@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import AuthPage from "./pages/AuthPage";
-import GestionPropietarios from "./pages/GestionPropietarios";
 import GestionUsuarios from "./pages/GestionUsuarios";
 import RegistroMultas from "./pages/RegistroMultas";
 import ReporteMultasPagadas from "./pages/ReporteMultasPagadas";
-import ReporteMultasPendientes from "./pages/ReporteMultasPendientes";
+import RegistroPropietario from "./pages/RegistroPropietario";
+
 import {
   HomeIcon,
   LogoutIcon,
@@ -48,7 +48,10 @@ function App() {
 
   const contenido = useMemo(() => {
     if (moduloActivo === "multas") return <RegistroMultas />;
-    if (moduloActivo === "personas") return <GestionPropietarios />;
+
+    if (moduloActivo === "personas") {
+      return <RegistroPropietario />;
+    }
 
     if (moduloActivo === "reportes") {
       return <ReporteMultasPagadas />;
