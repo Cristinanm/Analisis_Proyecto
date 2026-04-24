@@ -7,7 +7,7 @@ from app.api.multa_router import router as multa_router
 from app.api.routers_auth import router as auth_router
 from app.api.propietario_router import router as propietario_router
 from app.api.routers_reportes import router as reportes_router
-from app.api.consulta_multas_router import router as consulta_multas_router
+from app.api.consulta_multas_router import router as consulta_multas_router  # ✅
 
 Base.metadata.create_all(bind=engine)
 
@@ -29,7 +29,7 @@ app.include_router(multa_router)
 app.include_router(auth_router)
 app.include_router(propietario_router)
 app.include_router(reportes_router)
-app.include_router(consulta_multas_router)
+app.include_router(consulta_multas_router)  # ✅
 
 @app.get("/")
 def root():
