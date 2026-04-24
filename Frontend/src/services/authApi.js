@@ -1,4 +1,4 @@
-const API_URL = "http://127.0.0.1:8001";
+const API_URL = "http://127.0.0.1:8000";
 
 function extractErrorMessage(data) {
   if (!data) return "Ocurrio un error en autenticacion.";
