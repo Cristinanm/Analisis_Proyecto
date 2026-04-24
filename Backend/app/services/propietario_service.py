@@ -12,6 +12,10 @@ def obtener_propietario_por_dpi(db: Session, dpi: str):
     return db.query(Propietario).filter(Propietario.dpi == dpi).first()
 
 
+def obtener_propietario_por_correo(db: Session, correo: str):
+    return db.query(Propietario).filter(Propietario.correo == correo).first()
+
+
 def buscar_propietarios(db: Session, dpi: str | None = None, nombre: str | None = None):
     query = db.query(Propietario)
 
@@ -28,6 +32,7 @@ def crear_propietario(db: Session, data: PropietarioCreate):
     nuevo = Propietario(
         dpi=data.dpi.strip(),
         nombre=data.nombre.strip(),
+        correo=data.correo.strip().lower(),
         direccion=data.direccion.strip(),
         telefono=data.telefono.strip(),
     )
@@ -40,8 +45,10 @@ def crear_propietario(db: Session, data: PropietarioCreate):
 def actualizar_propietario(db: Session, propietario: Propietario, data: PropietarioUpdate):
     propietario.dpi = data.dpi.strip()
     propietario.nombre = data.nombre.strip()
+    propietario.correo = data.correo.strip().lower()
     propietario.direccion = data.direccion.strip()
     propietario.telefono = data.telefono.strip()
+
     db.commit()
     db.refresh(propietario)
     return propietario
