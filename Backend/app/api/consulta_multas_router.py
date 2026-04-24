@@ -1,5 +1,6 @@
 from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db
@@ -46,10 +47,12 @@ def calcular_monto_actualizado(multa: Multa):
 
 @router.get("/multas-por-placa/{placa}")
 def consultar_multas_por_placa(placa: str, db: Session = Depends(get_db)):
+    placa_limpia = placa.strip().upper()
+
     vehiculo = (
         db.query(Vehiculo)
         .options(joinedload(Vehiculo.multas))
-        .filter(Vehiculo.placa == placa.upper())
+        .filter(func.upper(func.trim(Vehiculo.placa)) == placa_limpia)
         .first()
     )
 
