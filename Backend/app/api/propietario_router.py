@@ -11,6 +11,7 @@ from app.services.propietario_service import (
     actualizar_propietario,
     buscar_propietarios,
     crear_propietario,
+    obtener_propietario_por_correo,
     obtener_propietario_por_dpi,
     obtener_propietario_por_id,
 )
@@ -20,11 +21,24 @@ router = APIRouter(prefix="/api/propietarios", tags=["Propietarios"])
 
 @router.post("/", response_model=PropietarioResponse, status_code=status.HTTP_201_CREATED)
 def crear_nuevo_propietario(data: PropietarioCreate, db: Session = Depends(get_db)):
-    existente = obtener_propietario_por_dpi(db, data.dpi.strip())
-    if existente:
+    if not data.dpi or not data.nombre or not data.correo or not data.direccion or not data.telefono:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="El DPI ya existe en la base de datos.",
+            detail="Faltan datos obligatorios",
+        )
+
+    existente_dpi = obtener_propietario_por_dpi(db, data.dpi.strip())
+    if existente_dpi:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El DPI ya existe",
+        )
+
+    existente_correo = obtener_propietario_por_correo(db, data.correo.strip().lower())
+    if existente_correo:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El correo ya está registrado",
         )
 
     return crear_propietario(db, data)
@@ -48,6 +62,19 @@ def buscar_propietario(
     return buscar_propietarios(db, dpi=dpi_valor, nombre=nombre_valor)
 
 
+@router.get("/{propietario_id}", response_model=PropietarioResponse)
+def consultar_propietario(propietario_id: int, db: Session = Depends(get_db)):
+    propietario = obtener_propietario_por_id(db, propietario_id)
+
+    if not propietario:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Propietario no encontrado.",
+        )
+
+    return propietario
+
+
 @router.put("/{propietario_id}", response_model=PropietarioResponse)
 def editar_propietario(
     propietario_id: int, data: PropietarioUpdate, db: Session = Depends(get_db)
@@ -59,12 +86,18 @@ def editar_propietario(
             detail="Propietario no encontrado.",
         )
 
-    dpi_valor = data.dpi.strip()
-    existente = obtener_propietario_por_dpi(db, dpi_valor)
-    if existente and existente.id != propietario.id:
+    existente_dpi = obtener_propietario_por_dpi(db, data.dpi.strip())
+    if existente_dpi and existente_dpi.id != propietario.id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="El DPI ya existe en la base de datos.",
+            detail="El DPI ya existe",
+        )
+
+    existente_correo = obtener_propietario_por_correo(db, data.correo.strip().lower())
+    if existente_correo and existente_correo.id != propietario.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El correo ya está registrado",
         )
 
     return actualizar_propietario(db, propietario, data)

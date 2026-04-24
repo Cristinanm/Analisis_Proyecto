@@ -7,7 +7,13 @@ class Propietario(Base):
     __tablename__ = "propietarios"
 
     id = Column(Integer, primary_key=True, index=True)
-    dpi = Column(String(20), unique=True, index=True, nullable=False)
+
+    dpi = Column(String(13), unique=True, index=True, nullable=False)
+
     nombre = Column(String(120), nullable=False)
+
+    correo = Column(String(120), unique=True, index=True, nullable=False)
+
     direccion = Column(String(255), nullable=False)
+
     telefono = Column(String(25), nullable=False)
