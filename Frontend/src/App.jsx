@@ -1,15 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import AuthPage from "./pages/AuthPage";
-import RegistroPropietario from "./pages/RegistroPropietario"; // ✅ CAMBIO
+import RegistroPropietario from "./pages/RegistroPropietario";
 import GestionUsuarios from "./pages/GestionUsuarios";
 import RegistroMultas from "./pages/RegistroMultas";
-import ReporteMultasPagadas from "./pages/ReporteMultasPagadas";
-import ReporteMultasPendientes from "./pages/ReporteMultasPendientes";
-import ConsultaMultasPorPlaca from "./pages/ConsultaMultasPorPlaca"; // ✅ RF-39
+import ReporteMultasEstado from "./pages/ReporteMultasEstado";
+import ConsultaMultasPorPlaca from "./pages/ConsultaMultasPorPlaca";
 
 import {
   HomeIcon,
-  LogoutIcon,
   TicketIcon,
   UserIcon,
   UsersIcon,
@@ -20,7 +18,7 @@ import { getMyProfile } from "./services/authApi";
 const MODULOS = [
   { key: "inicio", label: "Inicio", icon: HomeIcon },
   { key: "multas", label: "Registro de Multas", icon: TicketIcon },
-  { key: "consulta-multas", label: "Consulta por Placa", icon: TicketIcon }, // ✅ RF-39
+  { key: "consulta-multas", label: "Consulta por Placa", icon: TicketIcon },
   { key: "personas", label: "Modulo Personas", icon: UsersIcon },
   { key: "reportes", label: "Reportes", icon: TicketIcon },
   { key: "perfil", label: "Mi Perfil", icon: UserIcon },
@@ -51,20 +49,20 @@ function App() {
   }, [token]);
 
   const contenido = useMemo(() => {
-    if (moduloActivo === "multas") return <RegistroMultas />;
+    if (moduloActivo === "multas") {
+      return <RegistroMultas />;
+    }
 
-    // ✅ RF-39
     if (moduloActivo === "consulta-multas") {
       return <ConsultaMultasPorPlaca />;
     }
 
-    // ✅ RF-17 (AQUÍ ESTÁ LO IMPORTANTE)
     if (moduloActivo === "personas") {
       return <RegistroPropietario />;
     }
 
     if (moduloActivo === "reportes") {
-      return <ReporteMultasPagadas />;
+      return <ReporteMultasEstado />;
     }
 
     if (moduloActivo === "perfil") {
@@ -73,10 +71,18 @@ function App() {
           <h2 className="text-2xl font-semibold">Perfil del Usuario</h2>
 
           <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
-            <p><strong>Nombre:</strong> {perfil?.nombres} {perfil?.apellidos}</p>
-            <p><strong>Usuario:</strong> {perfil?.nombre_usuario}</p>
-            <p><strong>Correo:</strong> {perfil?.correo}</p>
-            <p><strong>Rol:</strong> {perfil?.rol}</p>
+            <p>
+              <strong>Nombre:</strong> {perfil?.nombres} {perfil?.apellidos}
+            </p>
+            <p>
+              <strong>Usuario:</strong> {perfil?.nombre_usuario}
+            </p>
+            <p>
+              <strong>Correo:</strong> {perfil?.correo}
+            </p>
+            <p>
+              <strong>Rol:</strong> {perfil?.rol}
+            </p>
           </div>
         </section>
       );

@@ -1,6 +1,7 @@
 from datetime import datetime
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import func
 
 from app.database import get_db
 from app.models.multa import Multa
@@ -122,4 +123,37 @@ def pagar_multa(
             "descuento_mora": multa.descuento_mora,
             "monto_final": multa.monto_final,
         }
+    }
+
+
+@router.get("/multas-estado")
+def obtener_conteo_multas_por_estado(db: Session = Depends(get_db)):
+    total_pagadas = (
+        db.query(Multa)
+        .filter(func.lower(Multa.estado) == "pagada")
+        .count()
+    )
+
+    total_pendientes = (
+        db.query(Multa)
+        .filter(func.lower(Multa.estado).in_(["pendiente", "pendientes"]))
+        .count()
+    )
+
+    total_multas = total_pagadas + total_pendientes
+
+    return {
+        "total_pagadas": total_pagadas,
+        "total_pendientes": total_pendientes,
+        "total_multas": total_multas,
+        "items": [
+            {
+                "estado": "Pagadas",
+                "total": total_pagadas
+            },
+            {
+                "estado": "Pendientes",
+                "total": total_pendientes
+            }
+        ]
     }
