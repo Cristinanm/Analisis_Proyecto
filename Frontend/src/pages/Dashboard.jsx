@@ -17,7 +17,17 @@ export const Dashboard = () => {
             }
             setCargando(false);
         };
+        
+        
         cargarDatos();
+
+        
+        const intervalo = setInterval(() => {
+            cargarDatos();
+        }, 5000); 
+
+        
+        return () => clearInterval(intervalo);
     }, []);
 
     return (
