@@ -13,3 +13,9 @@ class ReporteMultaPagada(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class DashboardSummary(BaseModel):
+    total_vehiculos: int
+    multas_pagadas: int
+    multas_pendientes: int
