@@ -6,6 +6,7 @@ import RegistroMultas from "./pages/RegistroMultas";
 import ReporteMultasPagadas from "./pages/ReporteMultasPagadas";
 import ReporteMultasPendientes from "./pages/ReporteMultasPendientes";
 import ConsultaMultasPorPlaca from "./pages/ConsultaMultasPorPlaca"; // ✅ RF-39
+import { Dashboard } from "./pages/Dashboard"; // ✅ RF-25 / RF-27
 
 import {
   HomeIcon,
@@ -51,6 +52,12 @@ function App() {
   }, [token]);
 
   const contenido = useMemo(() => {
+
+    if (moduloActivo === "inicio") {
+      return <Dashboard />;
+    }
+
+
     if (moduloActivo === "multas") return <RegistroMultas />;
 
     // ✅ RF-39
