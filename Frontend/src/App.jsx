@@ -6,12 +6,9 @@ import RegistroMultas from "./pages/RegistroMultas";
 
 import ReporteMultasEstado from "./pages/ReporteMultasEstado";
 import ConsultaMultasPorPlaca from "./pages/ConsultaMultasPorPlaca";
+import BusquedaAvanzadaVehiculos from "./pages/BusquedaAvanzadaVehiculos";
 
-import ReporteMultasPagadas from "./pages/ReporteMultasPagadas";
-import ReporteMultasPendientes from "./pages/ReporteMultasPendientes";
-import ConsultaMultasPorPlaca from "./pages/ConsultaMultasPorPlaca"; // ✅ RF-39
-import { Dashboard } from "./pages/Dashboard"; // ✅ RF-25 / RF-27
- main
+import { Dashboard } from "./pages/Dashboard";
 
 import {
   HomeIcon,
@@ -26,6 +23,7 @@ const MODULOS = [
   { key: "inicio", label: "Inicio", icon: HomeIcon },
   { key: "multas", label: "Registro de Multas", icon: TicketIcon },
   { key: "consulta-multas", label: "Consulta por Placa", icon: TicketIcon },
+  { key: "busqueda-vehiculos", label: "Búsqueda Vehículos", icon: TicketIcon },
   { key: "personas", label: "Modulo Personas", icon: UsersIcon },
   { key: "reportes", label: "Reportes", icon: TicketIcon },
   { key: "perfil", label: "Mi Perfil", icon: UserIcon },
@@ -56,22 +54,20 @@ function App() {
   }, [token]);
 
   const contenido = useMemo(() => {
+    if (moduloActivo === "inicio") {
+      return <Dashboard />;
+    }
 
     if (moduloActivo === "multas") {
       return <RegistroMultas />;
     }
 
-
-    if (moduloActivo === "inicio") {
-      return <Dashboard />;
-    }
-
-
-    if (moduloActivo === "multas") return <RegistroMultas />;
- main
-
     if (moduloActivo === "consulta-multas") {
       return <ConsultaMultasPorPlaca />;
+    }
+
+    if (moduloActivo === "busqueda-vehiculos") {
+      return <BusquedaAvanzadaVehiculos />;
     }
 
     if (moduloActivo === "personas") {

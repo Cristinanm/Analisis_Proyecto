@@ -170,4 +170,4 @@ router = APIRouter(prefix="/api/reportes", tags=["Reportes"])
 def get_dashboard_summary(db: Session = Depends(get_db)):
     
     return obtener_totales_dashboard(db)
- main
+ 
