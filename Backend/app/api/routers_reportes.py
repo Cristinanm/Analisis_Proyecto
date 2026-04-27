@@ -1,6 +1,7 @@
 from datetime import datetime
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import func
 
 from app.database import get_db
 from app.models.multa import Multa
@@ -125,6 +126,38 @@ def pagar_multa(
     }
 
 
+@router.get("/multas-estado")
+def obtener_conteo_multas_por_estado(db: Session = Depends(get_db)):
+    total_pagadas = (
+        db.query(Multa)
+        .filter(func.lower(Multa.estado) == "pagada")
+        .count()
+    )
+
+    total_pendientes = (
+        db.query(Multa)
+        .filter(func.lower(Multa.estado).in_(["pendiente", "pendientes"]))
+        .count()
+    )
+
+    total_multas = total_pagadas + total_pendientes
+
+    return {
+        "total_pagadas": total_pagadas,
+        "total_pendientes": total_pendientes,
+        "total_multas": total_multas,
+        "items": [
+            {
+                "estado": "Pagadas",
+                "total": total_pagadas
+            },
+            {
+                "estado": "Pendientes",
+                "total": total_pendientes
+            }
+        ]
+    }
+
     from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.api.deps import get_db
@@ -137,3 +170,4 @@ router = APIRouter(prefix="/api/reportes", tags=["Reportes"])
 def get_dashboard_summary(db: Session = Depends(get_db)):
     
     return obtener_totales_dashboard(db)
+ main
