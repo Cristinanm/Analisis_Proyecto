@@ -1,6 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+
+from app.schemas.vehiculo_schema import VehiculoCreate, VehiculoResponse, VehiculoBase
+from app.services.vehiculo_service import (
+    crear_vehiculo,
+    listar_vehiculos,
+    obtener_vehiculo_por_placa,
+    actualizar_vehiculo,
+)
 from app.database import get_db
 from app.schemas.vehiculo_schema import VehiculoCreate, VehiculoResponse
 from app.services.vehiculo_service import (
@@ -40,4 +48,19 @@ def buscar_vehiculo_por_placa(placa: str, db: Session = Depends(get_db)):
             detail=f"No se encontró un vehículo con la placa '{placa}'"
         )
 
+    return vehiculo
+
+
+
+@router.put("/{vehiculo_id}", response_model=VehiculoResponse)
+def editar_vehiculo(vehiculo_id: int, vehiculo_actualizado: VehiculoBase, db: Session = Depends(get_db)):
+    # Llamamos al servicio para que actualice los datos
+    vehiculo = actualizar_vehiculo(db, vehiculo_id, vehiculo_actualizado)
+    
+    if not vehiculo:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"No se encontró un vehículo con el ID '{vehiculo_id}'"
+        )
+        
     return vehiculo

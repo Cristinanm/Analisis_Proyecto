@@ -157,3 +157,17 @@ def obtener_conteo_multas_por_estado(db: Session = Depends(get_db)):
             }
         ]
     }
+
+    from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from app.api.deps import get_db
+from app.services.reporte_service import obtener_totales_dashboard
+from app.schemas.reporte import DashboardSummary
+
+router = APIRouter(prefix="/api/reportes", tags=["Reportes"])
+
+@router.get("/dashboard", response_model=DashboardSummary)
+def get_dashboard_summary(db: Session = Depends(get_db)):
+    
+    return obtener_totales_dashboard(db)
+ main

@@ -3,8 +3,15 @@ import AuthPage from "./pages/AuthPage";
 import RegistroPropietario from "./pages/RegistroPropietario";
 import GestionUsuarios from "./pages/GestionUsuarios";
 import RegistroMultas from "./pages/RegistroMultas";
+
 import ReporteMultasEstado from "./pages/ReporteMultasEstado";
 import ConsultaMultasPorPlaca from "./pages/ConsultaMultasPorPlaca";
+
+import ReporteMultasPagadas from "./pages/ReporteMultasPagadas";
+import ReporteMultasPendientes from "./pages/ReporteMultasPendientes";
+import ConsultaMultasPorPlaca from "./pages/ConsultaMultasPorPlaca"; // ✅ RF-39
+import { Dashboard } from "./pages/Dashboard"; // ✅ RF-25 / RF-27
+ main
 
 import {
   HomeIcon,
@@ -49,9 +56,19 @@ function App() {
   }, [token]);
 
   const contenido = useMemo(() => {
+
     if (moduloActivo === "multas") {
       return <RegistroMultas />;
     }
+
+
+    if (moduloActivo === "inicio") {
+      return <Dashboard />;
+    }
+
+
+    if (moduloActivo === "multas") return <RegistroMultas />;
+ main
 
     if (moduloActivo === "consulta-multas") {
       return <ConsultaMultasPorPlaca />;
