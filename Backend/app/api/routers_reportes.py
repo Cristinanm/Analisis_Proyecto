@@ -6,9 +6,10 @@ from sqlalchemy import func
 from app.database import get_db
 from app.models.multa import Multa
 from app.models.vehiculo import Vehiculo
-from app.schemas.reporte import ReporteMultaPagada
+from app.schemas.reporte import DashboardSummary
+from app.services.reporte_service import obtener_totales_dashboard
 
-router = APIRouter(prefix="/reportes", tags=["Reportes"])
+router = APIRouter(prefix="/api/reportes", tags=["Reportes"])
 
 
 def convertir_fecha(fecha_str: str):
@@ -46,7 +47,7 @@ def obtener_reporte_multas_pagadas(
         db.query(Multa)
         .join(Vehiculo)
         .options(joinedload(Multa.vehiculo))
-        .filter(Multa.estado == "pagada")
+        .filter(func.lower(Multa.estado) == "pagada")
         .all()
     )
 
@@ -147,27 +148,12 @@ def obtener_conteo_multas_por_estado(db: Session = Depends(get_db)):
         "total_pendientes": total_pendientes,
         "total_multas": total_multas,
         "items": [
-            {
-                "estado": "Pagadas",
-                "total": total_pagadas
-            },
-            {
-                "estado": "Pendientes",
-                "total": total_pendientes
-            }
+            {"estado": "Pagadas", "total": total_pagadas},
+            {"estado": "Pendientes", "total": total_pendientes}
         ]
     }
 
-    from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
-from app.api.deps import get_db
-from app.services.reporte_service import obtener_totales_dashboard
-from app.schemas.reporte import DashboardSummary
-
-router = APIRouter(prefix="/api/reportes", tags=["Reportes"])
 
 @router.get("/dashboard", response_model=DashboardSummary)
 def get_dashboard_summary(db: Session = Depends(get_db)):
-    
     return obtener_totales_dashboard(db)
- 
