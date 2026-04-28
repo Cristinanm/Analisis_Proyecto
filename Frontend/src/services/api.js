@@ -2,7 +2,6 @@ const API_URL = "http://127.0.0.1:8000";
 
 export async function buscarVehiculoPorPlaca(placa) {
   const response = await fetch(`${API_URL}/api/vehiculos/placa/${placa}`);
-
   const data = await response.json();
 
   if (!response.ok) {
@@ -54,7 +53,10 @@ export async function buscarPropietarios({ dpi, nombre }) {
   if (dpi) params.append("dpi", dpi);
   if (nombre) params.append("nombre", nombre);
 
-  const response = await fetch(`${API_URL}/api/propietarios/buscar?${params.toString()}`);
+  const response = await fetch(
+    `${API_URL}/api/propietarios/buscar?${params.toString()}`
+  );
+
   const data = await response.json();
 
   if (!response.ok) {
@@ -77,6 +79,23 @@ export async function actualizarPropietario(propietarioId, payload) {
 
   if (!response.ok) {
     throw new Error(data.detail || "No se pudo actualizar el propietario");
+  }
+
+  return data;
+}
+
+export async function pagarMulta(multaId, fechaPago) {
+  const response = await fetch(
+    `${API_URL}/api/multas/${multaId}/pagar?fecha_pago=${fechaPago}`,
+    {
+      method: "PUT",
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "No se pudo pagar la multa");
   }
 
   return data;
