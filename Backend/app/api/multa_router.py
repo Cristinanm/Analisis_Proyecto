@@ -3,10 +3,9 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.schemas.multa_schema import MultaCreate
-from app.services.multa_service import registrar_multa
+from app.services.multa_service import registrar_multa, pagar_multa
 
 router = APIRouter(prefix="/api/multas", tags=["Multas"])
-
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def crear_multa(multa: MultaCreate, db: Session = Depends(get_db)):
@@ -22,3 +21,7 @@ def crear_multa(multa: MultaCreate, db: Session = Depends(get_db)):
         "estado": nueva_multa.estado,
         "mensaje": "Multa registrada exitosamente"
     }
+
+@router.put("/{multa_id}/pagar")
+def pagar_multa_endpoint(multa_id: int, fecha_pago: str, db: Session = Depends(get_db)):
+    return pagar_multa(db, multa_id, fecha_pago)
