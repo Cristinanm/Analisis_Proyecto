@@ -1,4 +1,4 @@
-const API_URL = "http://127.0.0.1:8001";
+const API_URL = "http://127.0.0.1:8000";
 
 export async function buscarVehiculoPorPlaca(placa) {
   const response = await fetch(`${API_URL}/api/vehiculos/placa/${placa}`);
@@ -13,7 +13,7 @@ export async function buscarVehiculoPorPlaca(placa) {
 }
 
 export async function registrarMulta(payload) {
-  const response = await fetch(`${API_URL}/api/multas`, {
+  const response = await fetch(`${API_URL}/api/multas/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
