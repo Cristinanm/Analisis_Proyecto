@@ -7,6 +7,7 @@ import RegistroMultas from "./pages/RegistroMultas";
 import ReporteMultasEstado from "./pages/ReporteMultasEstado";
 import ConsultaMultasPorPlaca from "./pages/ConsultaMultasPorPlaca";
 import BusquedaAvanzadaVehiculos from "./pages/BusquedaAvanzadaVehiculos";
+import BusquedaRecibos from "./pages/BusquedaRecibos";
 
 import { Dashboard } from "./pages/Dashboard";
 
@@ -28,6 +29,7 @@ const MODULOS = [
   { key: "reportes", label: "Reportes", icon: TicketIcon },
   { key: "perfil", label: "Mi Perfil", icon: UserIcon },
   { key: "usuarios", label: "Gestion Usuarios", icon: UsersIcon },
+  { key: "visor-recibos", label: "Visor de Recibos", icon: TicketIcon },
 ];
 
 function App() {
@@ -54,6 +56,11 @@ function App() {
   }, [token]);
 
   const contenido = useMemo(() => {
+    if (moduloActivo === "visor-recibos") {
+  return <BusquedaRecibos />;
+}
+
+
     if (moduloActivo === "inicio") {
       return <Dashboard />;
     }
