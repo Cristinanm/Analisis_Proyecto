@@ -9,6 +9,10 @@ from app.models.usuario import Usuario
 from app.schemas.auth import AdminUserCreateRequest, AdminUserUpdateRequest, RegistroRequest
 
 ROLES_VALIDOS = {"usuario", "admin", "supervisor"}
+
+# RF-31 / RF-32: limite de intentos fallidos antes de bloquear cuenta
+LIMITE_INTENTOS_FALLIDOS = 3
+
 PATRON_PASSWORD_SEGURA = re.compile(
     r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,72}$"
 )
@@ -63,6 +67,10 @@ def crear_usuario(db: Session, payload: RegistroRequest) -> Usuario:
         hashed_password=get_password_hash(payload.contrasena),
         rol="usuario",
         activo=True,
+        intentos_fallidos=0,
+        bloqueado=False,
+        bloqueado_en=None,
+        ultimo_intento_fallido=None,
     )
     db.add(nuevo_usuario)
     db.commit()
@@ -78,7 +86,7 @@ def autenticar_usuario(db: Session, usuario_o_correo: str, contrasena: str) -> U
         .first()
     )
 
-    if not usuario or not verify_password(contrasena, usuario.hashed_password):
+    if not usuario:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Credenciales incorrectas.",
@@ -89,6 +97,40 @@ def autenticar_usuario(db: Session, usuario_o_correo: str, contrasena: str) -> U
             status_code=status.HTTP_403_FORBIDDEN,
             detail="El usuario está inactivo. Contacta al administrador.",
         )
+
+    if usuario.bloqueado:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Cuenta bloqueada por varios intentos fallidos. Contacta al administrador.",
+        )
+
+    if not verify_password(contrasena, usuario.hashed_password):
+        usuario.intentos_fallidos = (usuario.intentos_fallidos or 0) + 1
+        usuario.ultimo_intento_fallido = datetime.utcnow()
+
+        if usuario.intentos_fallidos >= LIMITE_INTENTOS_FALLIDOS:
+            usuario.bloqueado = True
+            usuario.bloqueado_en = datetime.utcnow()
+            db.commit()
+
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Cuenta bloqueada por varios intentos fallidos. Contacta al administrador.",
+            )
+
+        db.commit()
+
+        intentos_restantes = LIMITE_INTENTOS_FALLIDOS - usuario.intentos_fallidos
+
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Credenciales incorrectas. Intentos restantes: {intentos_restantes}.",
+        )
+
+    usuario.intentos_fallidos = 0
+    usuario.ultimo_intento_fallido = None
+    db.commit()
+    db.refresh(usuario)
 
     return usuario
 
@@ -122,6 +164,11 @@ def restablecer_contrasena(db: Session, token: str, nueva_contrasena: str) -> No
     usuario.hashed_password = get_password_hash(nueva_contrasena)
     usuario.reset_token = None
     usuario.reset_token_expira = None
+
+    # RF-31: al restablecer contraseña se limpian los intentos fallidos
+    usuario.intentos_fallidos = 0
+    usuario.ultimo_intento_fallido = None
+
     db.commit()
 
 
@@ -164,6 +211,24 @@ def actualizar_estado_usuario(db: Session, user_id: int, activo: bool) -> Usuari
     return usuario
 
 
+def desbloquear_usuario(db: Session, user_id: int) -> Usuario:
+    usuario = db.query(Usuario).filter(Usuario.id == user_id).first()
+    if not usuario:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Usuario no encontrado.",
+        )
+
+    usuario.bloqueado = False
+    usuario.intentos_fallidos = 0
+    usuario.bloqueado_en = None
+    usuario.ultimo_intento_fallido = None
+
+    db.commit()
+    db.refresh(usuario)
+    return usuario
+
+
 def crear_usuario_admin(db: Session, payload: AdminUserCreateRequest) -> Usuario:
     correo = payload.correo.lower()
     nombre_usuario = payload.nombre_usuario.strip().lower()
@@ -197,6 +262,10 @@ def crear_usuario_admin(db: Session, payload: AdminUserCreateRequest) -> Usuario
         hashed_password=get_password_hash(payload.contrasena),
         rol=rol_normalizado,
         activo=payload.activo,
+        intentos_fallidos=0,
+        bloqueado=False,
+        bloqueado_en=None,
+        ultimo_intento_fallido=None,
     )
     db.add(nuevo_usuario)
     db.commit()

@@ -23,3 +23,24 @@ def crear_vehiculo(db: Session, vehiculo_data: VehiculoCreate):
 
 def listar_vehiculos(db: Session):
     return db.query(Vehiculo).all()
+
+#
+from app.schemas.vehiculo_schema import VehiculoBase
+
+def actualizar_vehiculo(db: Session, vehiculo_id: int, datos: VehiculoBase):
+    
+    db_vehiculo = db.query(Vehiculo).filter(Vehiculo.id == vehiculo_id).first()
+    
+    if db_vehiculo:
+        
+        db_vehiculo.placa = datos.placa.upper()
+        db_vehiculo.marca = datos.marca
+        db_vehiculo.modelo = datos.modelo
+        db_vehiculo.anio = datos.anio
+        db_vehiculo.propietario = datos.propietario
+        
+        
+        db.commit()
+        db.refresh(db_vehiculo)
+        
+    return db_vehiculo

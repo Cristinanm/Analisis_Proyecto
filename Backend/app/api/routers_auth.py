@@ -25,6 +25,7 @@ from app.services.auth_service import (
     autenticar_usuario,
     crear_usuario_admin,
     crear_usuario,
+    desbloquear_usuario as desbloquear_usuario_service,
     eliminar_usuario_admin,
     generar_token_recuperacion,
     listar_usuarios,
@@ -112,6 +113,16 @@ def actualizar_estado(
         )
 
     return actualizar_estado_usuario(db, user_id, payload.activo)
+
+
+@router.patch("/admin/users/{user_id}/unlock", response_model=UsuarioRespuesta)
+def desbloquear_usuario_admin(
+    user_id: int,
+    db: Session = Depends(get_db),
+    usuario_actual: Usuario = Depends(obtener_usuario_autenticado),
+):
+    _validar_admin(usuario_actual)
+    return desbloquear_usuario_service(db, user_id)
 
 
 @router.post("/admin/users", response_model=UsuarioRespuesta, status_code=status.HTTP_201_CREATED)

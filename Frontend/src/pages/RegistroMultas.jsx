@@ -11,7 +11,7 @@ function RegistroMultas() {
   const [cargandoBusqueda, setCargandoBusqueda] = useState(false);
   const [cargandoRegistro, setCargandoRegistro] = useState(false);
 
-  const [formKey, setFormKey] = useState(0); // 🔥 clave para reiniciar formulario
+  const [formKey, setFormKey] = useState(0); 
 
   const manejarBusqueda = async (placa) => {
     setMensaje("");

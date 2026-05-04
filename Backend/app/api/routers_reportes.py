@@ -6,9 +6,10 @@ from sqlalchemy import func
 from app.database import get_db
 from app.models.multa import Multa
 from app.models.vehiculo import Vehiculo
-from app.schemas.reporte import ReporteMultaPagada
+from app.schemas.reporte import DashboardSummary
+from app.services.reporte_service import obtener_totales_dashboard
 
-router = APIRouter(prefix="/reportes", tags=["Reportes"])
+router = APIRouter(prefix="/api/reportes", tags=["Reportes"])
 
 
 def convertir_fecha(fecha_str: str):
@@ -37,16 +38,22 @@ def obtener_reporte_multas_pagadas(
     fecha_fin_dt = convertir_fecha(fecha_fin)
 
     if not fecha_inicio_dt or not fecha_fin_dt:
-        raise HTTPException(status_code=400, detail="Formato de fecha invalido. Use YYYY-MM-DD")
+        raise HTTPException(
+            status_code=400,
+            detail="Formato de fecha invalido. Use YYYY-MM-DD"
+        )
 
     if fecha_inicio_dt > fecha_fin_dt:
-        raise HTTPException(status_code=400, detail="La fecha inicio no puede ser mayor que la fecha fin")
+        raise HTTPException(
+            status_code=400,
+            detail="La fecha inicio no puede ser mayor que la fecha fin"
+        )
 
     multas = (
         db.query(Multa)
         .join(Vehiculo)
         .options(joinedload(Multa.vehiculo))
-        .filter(Multa.estado == "pagada")
+        .filter(func.lower(Multa.estado) == "pagada")
         .all()
     )
 
@@ -58,6 +65,7 @@ def obtener_reporte_multas_pagadas(
             continue
 
         fecha_pago_dt = convertir_fecha(multa.fecha_pago)
+
         if not fecha_pago_dt:
             continue
 
@@ -93,10 +101,16 @@ def pagar_multa(
     multa = db.query(Multa).filter(Multa.id == multa_id).first()
 
     if not multa:
-        raise HTTPException(status_code=404, detail="Multa no encontrada")
+        raise HTTPException(
+            status_code=404,
+            detail="Multa no encontrada"
+        )
 
     if multa.estado == "pagada":
-        raise HTTPException(status_code=400, detail="La multa ya fue pagada")
+        raise HTTPException(
+            status_code=400,
+            detail="La multa ya fue pagada"
+        )
 
     ahora = datetime.now()
     fecha_pago = ahora.strftime("%Y-%m-%d")
@@ -150,6 +164,7 @@ def obtener_conteo_multas_por_estado(db: Session = Depends(get_db)):
             {
                 "estado": "Pagadas",
                 "total": total_pagadas
+                
             },
             {
                 "estado": "Pendientes",
@@ -157,3 +172,8 @@ def obtener_conteo_multas_por_estado(db: Session = Depends(get_db)):
             }
         ]
     }
+
+
+@router.get("/dashboard", response_model=DashboardSummary)
+def get_dashboard_summary(db: Session = Depends(get_db)):
+    return obtener_totales_dashboard(db)
