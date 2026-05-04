@@ -17,7 +17,11 @@ function ReporteMultasEstado() {
     setError("");
 
     try {
+
+
+
       const response = await fetch("http://127.0.0.1:8000/api/reportes/multas-estado");
+
 
       if (!response.ok) {
         throw new Error("No se pudo obtener el conteo de multas por estado.");

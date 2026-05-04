@@ -14,8 +14,13 @@ class Usuario(Base):
     hashed_password = Column(String(255), nullable=False)
     rol = Column(String(30), nullable=False, default="usuario")
     activo = Column(Boolean, nullable=False, default=True)
+
+    # RF-31 / RF-32: bloqueo por intentos fallidos
+    intentos_fallidos = Column(Integer, nullable=False, default=0)
+    bloqueado = Column(Boolean, nullable=False, default=False)
+    bloqueado_en = Column(DateTime, nullable=True)
+    ultimo_intento_fallido = Column(DateTime, nullable=True)
+
     reset_token = Column(String(255), nullable=True, index=True)
     reset_token_expira = Column(DateTime, nullable=True)
     creado_en = Column(DateTime, nullable=False, default=datetime.utcnow)
-
-

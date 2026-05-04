@@ -38,10 +38,16 @@ def obtener_reporte_multas_pagadas(
     fecha_fin_dt = convertir_fecha(fecha_fin)
 
     if not fecha_inicio_dt or not fecha_fin_dt:
-        raise HTTPException(status_code=400, detail="Formato de fecha invalido. Use YYYY-MM-DD")
+        raise HTTPException(
+            status_code=400,
+            detail="Formato de fecha invalido. Use YYYY-MM-DD"
+        )
 
     if fecha_inicio_dt > fecha_fin_dt:
-        raise HTTPException(status_code=400, detail="La fecha inicio no puede ser mayor que la fecha fin")
+        raise HTTPException(
+            status_code=400,
+            detail="La fecha inicio no puede ser mayor que la fecha fin"
+        )
 
     multas = (
         db.query(Multa)
@@ -59,6 +65,7 @@ def obtener_reporte_multas_pagadas(
             continue
 
         fecha_pago_dt = convertir_fecha(multa.fecha_pago)
+
         if not fecha_pago_dt:
             continue
 
@@ -94,10 +101,16 @@ def pagar_multa(
     multa = db.query(Multa).filter(Multa.id == multa_id).first()
 
     if not multa:
-        raise HTTPException(status_code=404, detail="Multa no encontrada")
+        raise HTTPException(
+            status_code=404,
+            detail="Multa no encontrada"
+        )
 
     if multa.estado == "pagada":
-        raise HTTPException(status_code=400, detail="La multa ya fue pagada")
+        raise HTTPException(
+            status_code=400,
+            detail="La multa ya fue pagada"
+        )
 
     ahora = datetime.now()
     fecha_pago = ahora.strftime("%Y-%m-%d")
@@ -148,8 +161,15 @@ def obtener_conteo_multas_por_estado(db: Session = Depends(get_db)):
         "total_pendientes": total_pendientes,
         "total_multas": total_multas,
         "items": [
-            {"estado": "Pagadas", "total": total_pagadas},
-            {"estado": "Pendientes", "total": total_pendientes}
+            {
+                "estado": "Pagadas",
+                "total": total_pagadas
+                
+            },
+            {
+                "estado": "Pendientes",
+                "total": total_pendientes
+            }
         ]
     }
 

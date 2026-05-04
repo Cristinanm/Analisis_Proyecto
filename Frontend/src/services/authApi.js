@@ -140,3 +140,13 @@ export function deleteUserByAdmin(token, userId) {
     },
   });
 }
+
+// RF-31 / RF-33: desbloquear usuario bloqueado por intentos fallidos
+export function unlockUser(token, userId) {
+  return request(`/auth/admin/users/${userId}/unlock`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
