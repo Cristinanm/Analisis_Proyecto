@@ -44,3 +44,11 @@ def root():
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+@app.get("/version")
+def obtener_version():
+    return {
+        "sistema": "Sistema de Gestión de Multas",
+        "version": "1.0.1",
+        "estado": "Actualización aplicada correctamente"
+    }
