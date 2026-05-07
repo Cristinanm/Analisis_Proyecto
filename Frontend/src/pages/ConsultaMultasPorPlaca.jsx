@@ -81,11 +81,11 @@ const manejarPagarMulta = async (multaId) => {
 return (
   <section className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-6 text-zinc-100 shadow-2xl">
     <h2 className="text-2xl font-bold">
-      Consulta detallada de multas por placa
+      Centro de Pagos y Multas por Placa
     </h2>
 
     <p className="mt-2 text-sm text-zinc-400">
-      Ingrese una placa para consultar el historial de multas pendientes y pagadas.
+      Consulta el historial de infracciones, visualiza el estado de las multas y procesa pagos de forma rápida y segura.
     </p>
 
     <form onSubmit={consultar} className="mt-5 flex flex-col gap-3 md:flex-row">

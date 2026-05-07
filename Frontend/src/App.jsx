@@ -3,6 +3,7 @@ import AuthPage from "./pages/AuthPage";
 import RegistroPropietario from "./pages/RegistroPropietario";
 import GestionUsuarios from "./pages/GestionUsuarios";
 import RegistroMultas from "./pages/RegistroMultas";
+import RegistroVehiculos from "./pages/RegistroVehiculos";
 
 
 
@@ -27,8 +28,8 @@ import { getMyProfile } from "./services/authApi";
 const MODULOS = [
   { key: "inicio", label: "Inicio", icon: HomeIcon },
   { key: "multas", label: "Registro de Multas", icon: TicketIcon },
-  { key: "consulta-multas", label: "Consulta por Placa", icon: TicketIcon },
-
+  { key: "consulta-multas", label: "Control de Infracciones", icon: TicketIcon },
+  {key: "vehiculos",label: "Registro Vehículos",icon: TicketIcon,},
   { key: "busqueda-vehiculos", label: "Búsqueda Vehículos", icon: TicketIcon },
 
   { key: "personas", label: "Modulo Personas", icon: UsersIcon },
@@ -77,6 +78,10 @@ function App() {
 
     if (moduloActivo === "consulta-multas") {
       return <ConsultaMultasPorPlaca />;
+    }
+
+    if (moduloActivo === "vehiculos") {
+      return <RegistroVehiculos token={token} />;
     }
 
     if (moduloActivo === "busqueda-vehiculos") {
@@ -142,23 +147,30 @@ function App() {
   return (
     <main className="min-h-screen">
       <div className="min-h-screen md:flex">
-        <aside className="w-full md:w-72 bg-zinc-950 p-5">
-          <h1 className="text-xl text-white">Control Empresarial</h1>
+        <aside className="w-full md:w-72 bg-slate-950 p-5 shadow-2xl">
+          <h1 className="mb-6 text-2xl font-bold text-white">
+            TransitHub
+          </h1>
 
-          <nav className="mt-5 space-y-2">
+          <nav className="space-y-2">
             {MODULOS.map((modulo) => (
               <button
                 key={modulo.key}
                 onClick={() => setModuloActivo(modulo.key)}
-                className="block w-full text-left text-white hover:bg-zinc-800 p-2 rounded"
+                className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-all duration-200 ${
+                  moduloActivo === modulo.key
+                    ? "bg-blue-600 text-white shadow-lg"
+                    : "text-zinc-300 hover:bg-zinc-800 hover:text-white"
+                }`}
               >
-                {modulo.label}
+                <modulo.icon className="h-5 w-5" />
+                <span className="text-sm font-medium">{modulo.label}</span>
               </button>
             ))}
           </nav>
 
           <button
-            className="mt-5 bg-red-500 text-white p-2 w-full"
+            className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-3 font-semibold text-white transition-all duration-200 hover:bg-red-700"
             onClick={() => {
               localStorage.removeItem("token");
               setToken("");
