@@ -8,6 +8,9 @@ import RegistroVehiculos from "./pages/RegistroVehiculos";
 
 
 
+
+
+
 import ReporteMultasEstado from "./pages/ReporteMultasEstado";
 import ConsultaMultasPorPlaca from "./pages/ConsultaMultasPorPlaca";
 import BusquedaAvanzadaVehiculos from "./pages/BusquedaAvanzadaVehiculos";
@@ -28,8 +31,13 @@ import { getMyProfile } from "./services/authApi";
 const MODULOS = [
   { key: "inicio", label: "Inicio", icon: HomeIcon },
   { key: "multas", label: "Registro de Multas", icon: TicketIcon },
+
+  { key: "consulta-multas", label: "Consulta por Placa", icon: TicketIcon },
+
+
   { key: "consulta-multas", label: "Control de Infracciones", icon: TicketIcon },
   {key: "vehiculos",label: "Registro Vehículos",icon: TicketIcon,},
+
   { key: "busqueda-vehiculos", label: "Búsqueda Vehículos", icon: TicketIcon },
 
   { key: "personas", label: "Modulo Personas", icon: UsersIcon },

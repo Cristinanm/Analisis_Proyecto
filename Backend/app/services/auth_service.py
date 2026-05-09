@@ -10,8 +10,10 @@ from app.schemas.auth import AdminUserCreateRequest, AdminUserUpdateRequest, Reg
 
 ROLES_VALIDOS = {"usuario", "admin", "supervisor"}
 
+
 # RNF - 3: Disponibilidad del sistema.
 MAXIMO_USUARIOS = 50 
+
 
 
 # RF-31 / RF-32: limite de intentos fallidos antes de bloquear cuenta
