@@ -11,6 +11,7 @@ class Vehiculo(Base):
     marca = Column(String, nullable=False)
     modelo = Column(String, nullable=False)
     anio = Column(Integer, nullable=False)
-    propietario = Column(String, nullable=True)
+    propietario = Column(String, nullable=True, index = True)
 
     multas = relationship("Multa", back_populates="vehiculo")
+

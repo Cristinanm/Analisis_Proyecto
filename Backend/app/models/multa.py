@@ -11,11 +11,11 @@ class Multa(Base):
     tipo_infraccion = Column(String, nullable=False)
     descripcion = Column(String, nullable=False)
     monto_base = Column(Float, nullable=False)
-    estado = Column(String, nullable=False, default="pendiente")
+    estado = Column(String, nullable=False, default="pendiente", index= True)
 
     fecha_notificacion = Column(String, nullable=True)
 
-    id_factura = Column(String, nullable=True)
+    id_factura = Column(String, nullable=True, index=True)
     fecha_pago = Column(String, nullable=True)
     descuento_mora = Column(Float, nullable=False, default=0.0)
     monto_final = Column(Float, nullable=True)
@@ -24,6 +24,6 @@ class Multa(Base):
     monto_mora_calculado = Column(Float, nullable=False, default=0.0)
     descuento_pronto_pago = Column(Float, nullable=False, default=0.0)
 
-    vehiculo_id = Column(Integer, ForeignKey("vehiculos.id"), nullable=False)
+    vehiculo_id = Column(Integer, ForeignKey("vehiculos.id"), nullable=False, index=True)
     vehiculo = relationship("Vehiculo", back_populates="multas")
     

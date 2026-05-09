@@ -10,6 +10,12 @@ from app.schemas.auth import AdminUserCreateRequest, AdminUserUpdateRequest, Reg
 
 ROLES_VALIDOS = {"usuario", "admin", "supervisor"}
 
+
+# RNF - 3: Disponibilidad del sistema.
+MAXIMO_USUARIOS = 50 
+
+
+
 # RF-31 / RF-32: limite de intentos fallidos antes de bloquear cuenta
 LIMITE_INTENTOS_FALLIDOS = 3
 
@@ -40,8 +46,16 @@ def _obtener_usuario_por_username(db: Session, username: str) -> Usuario | None:
         .first()
     )
 
+def validar_maximo_usuarios(db: Session) -> None:
+    total_usuarios = db.query(Usuario).count()
+    if total_usuarios >= MAXIMO_USUARIOS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El numero de usuarios maximo ha sido alcanzado.",
+        )
 
 def crear_usuario(db: Session, payload: RegistroRequest) -> Usuario:
+    validar_maximo_usuarios(db)
     correo = payload.correo.lower()
     nombre_usuario = payload.nombre_usuario.strip().lower()
 
@@ -230,6 +244,7 @@ def desbloquear_usuario(db: Session, user_id: int) -> Usuario:
 
 
 def crear_usuario_admin(db: Session, payload: AdminUserCreateRequest) -> Usuario:
+    validar_maximo_usuarios(db)
     correo = payload.correo.lower()
     nombre_usuario = payload.nombre_usuario.strip().lower()
     rol_normalizado = payload.rol.strip().lower()
