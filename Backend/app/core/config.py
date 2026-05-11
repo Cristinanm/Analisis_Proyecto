@@ -1,12 +1,17 @@
+from pathlib import Path
+
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+BASE_DIR = Path(__file__).resolve().parents[2]
+DEFAULT_SQLITE_URL = f"sqlite:///{(BASE_DIR / 'multas.db').as_posix()}"
 
 
 class Configuracion(BaseSettings):
     app_nombre: str = Field(default="Sistema de Gestion de Multas", validation_alias="App_nombre")
     app_version: str = Field(default="1.0.0", validation_alias="App_version")
     debug: bool = Field(default=True, validation_alias="Debug")
-    database_url: str = Field(default="sqlite:///./multas.db", validation_alias="Database_url")
+    database_url: str = Field(default=DEFAULT_SQLITE_URL, validation_alias="Database_url")
     frontend_url: str = Field(default="http://localhost:5173", validation_alias="Frontend_url")
 
     @field_validator("debug", mode="before")

@@ -17,3 +17,8 @@ dist/
 Thumbs.db
 
 .vite/
+
+# Env files
+.env
+*.env
+!.env.example
