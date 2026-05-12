@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { getDashboardTotales } from "../services/dashboardService";
+import BusquedaAvanzadaVehiculos from "./BusquedaAvanzadaVehiculos";
 
 export const Dashboard = () => {
   const [totales, setTotales] = useState({
@@ -67,7 +68,8 @@ export const Dashboard = () => {
         </h1>
 
         <p className="mt-2 text-sm text-zinc-400">
-          Resumen general de vehículos y estado actual de las multas.
+          Resumen general de vehículos, estado actual de las multas y búsqueda
+          rápida de registros.
         </p>
       </header>
 
@@ -103,6 +105,8 @@ export const Dashboard = () => {
           ))}
         </div>
       )}
+
+      <BusquedaAvanzadaVehiculos />
 
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-6 shadow-xl">
         <h2 className="text-xl font-semibold text-zinc-100">

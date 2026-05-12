@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import relationship
 
 from app.database import Base
 
@@ -17,3 +18,5 @@ class Propietario(Base):
     direccion = Column(String(255), nullable=False)
 
     telefono = Column(String(25), nullable=False)
+
+    vehiculos = relationship("Vehiculo", back_populates="propietario")
