@@ -8,7 +8,7 @@ export default function RegistroVehiculos({ token }) {
     marca: "",
     modelo: "",
     anio: "",
-    propietario: "",
+    propietario_id: "",
   });
 
   const [mensaje, setMensaje] = useState("");
@@ -17,6 +17,8 @@ export default function RegistroVehiculos({ token }) {
 
   // NUEVO: estados para listar vehículos existentes
   const [vehiculos, setVehiculos] = useState([]);
+  const [propietarios, setPropietarios] = useState([]);
+  const [cargandoPropietarios, setCargandoPropietarios] = useState(false);
   const [cargandoVehiculos, setCargandoVehiculos] = useState(false);
 
   const totalVehiculos = useMemo(() => vehiculos.length, [vehiculos]);
@@ -53,9 +55,32 @@ export default function RegistroVehiculos({ token }) {
     }
   };
 
+  const cargarPropietarios = async () => {
+  setCargandoPropietarios(true);
+
+  try {
+    const response = await fetch(
+      "http://127.0.0.1:8000/api/propietarios/"
+    );
+
+    if (!response.ok) {
+      throw new Error("No se pudieron cargar los propietarios");
+    }
+
+    const data = await response.json();
+
+    setPropietarios(Array.isArray(data) ? data : []);
+  } catch (err) {
+    setError(err.message || "Error al cargar propietarios");
+  } finally {
+    setCargandoPropietarios(false);
+  }
+};
+
   // NUEVO: cargar vehículos al abrir la pantalla
-  useEffect(() => {
+    useEffect(() => {
     cargarVehiculos();
+    cargarPropietarios();
   }, []);
 
   const handleChange = (e) => {
@@ -71,7 +96,7 @@ export default function RegistroVehiculos({ token }) {
       marca: "",
       modelo: "",
       anio: "",
-      propietario: "",
+      propietario_id: "",
     });
   };
 
@@ -87,7 +112,7 @@ export default function RegistroVehiculos({ token }) {
       marca: formData.marca.trim(),
       modelo: formData.modelo.trim(),
       anio: Number(formData.anio),
-      propietario: formData.propietario.trim(),
+      propietario_id: Number(formData.propietario_id),
     };
 
     try {
@@ -196,15 +221,25 @@ export default function RegistroVehiculos({ token }) {
 
           <div className="md:col-span-2">
             <label className={labelClass}>Propietario</label>
-            <input
-              type="text"
-              name="propietario"
-              value={formData.propietario}
+            <select
+              name="propietario_id"
+              value={formData.propietario_id}
               onChange={handleChange}
-              placeholder="Nombre del propietario"
               className={inputClass}
               required
-            />
+            >
+              <option value="">
+                {cargandoPropietarios
+                  ? "Cargando propietarios..."
+                  : "Seleccione un propietario"}
+              </option>
+
+              {propietarios.map((propietario) => (
+                <option key={propietario.id} value={propietario.id}>
+                  {propietario.nombre} - DPI: {propietario.dpi}
+                </option>
+              ))}
+        </select>
           </div>
 
           <div className="flex gap-3 md:col-span-2">
@@ -290,7 +325,7 @@ export default function RegistroVehiculos({ token }) {
                     <td className="px-4 py-3">{vehiculo.modelo}</td>
                     <td className="px-4 py-3">{vehiculo.anio}</td>
                     <td className="px-4 py-3">
-                      {vehiculo.propietario || "Sin propietario"}
+                      {vehiculo.propietario?.nombre || "Sin propietario"}
                     </td>
                   </tr>
                 ))}

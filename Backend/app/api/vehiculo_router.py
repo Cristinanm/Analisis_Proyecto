@@ -1,14 +1,15 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db
 from app.models.vehiculo import Vehiculo
+from app.models.propietario import Propietario
 from app.schemas.vehiculo_schema import VehiculoCreate, VehiculoResponse, VehiculoBase
 from app.services.vehiculo_service import (
+    actualizar_vehiculo,
     crear_vehiculo,
     listar_vehiculos,
     obtener_vehiculo_por_placa,
-    actualizar_vehiculo,
 )
 
 router = APIRouter(prefix="/api/vehiculos", tags=["Vehículos"])
@@ -21,10 +22,18 @@ def crear_nuevo_vehiculo(vehiculo: VehiculoCreate, db: Session = Depends(get_db)
     if existente:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="La placa ya existe"
+            detail="La placa ya existe",
         )
 
-    return crear_vehiculo(db, vehiculo)
+    nuevo_vehiculo = crear_vehiculo(db, vehiculo)
+
+    if not nuevo_vehiculo:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="El propietario seleccionado no existe",
+        )
+
+    return nuevo_vehiculo
 
 
 @router.get("/", response_model=list[VehiculoResponse])
@@ -37,9 +46,9 @@ def buscar_vehiculos(
     placa: str | None = Query(default=None),
     marca: str | None = Query(default=None),
     propietario: str | None = Query(default=None),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
-    query = db.query(Vehiculo)
+    query = db.query(Vehiculo).join(Propietario)
 
     if placa:
         query = query.filter(Vehiculo.placa.ilike(f"%{placa}%"))
@@ -48,7 +57,7 @@ def buscar_vehiculos(
         query = query.filter(Vehiculo.marca.ilike(f"%{marca}%"))
 
     if propietario:
-        query = query.filter(Vehiculo.propietario.ilike(f"%{propietario}%"))
+        query = query.filter(Propietario.nombre.ilike(f"%{propietario}%"))
 
     return query.all()
 
@@ -60,7 +69,7 @@ def buscar_vehiculo_por_placa(placa: str, db: Session = Depends(get_db)):
     if not vehiculo:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"No se encontró un vehículo con la placa '{placa}'"
+            detail=f"No se encontró un vehículo con la placa '{placa}'",
         )
 
     return vehiculo
@@ -70,16 +79,21 @@ def buscar_vehiculo_por_placa(placa: str, db: Session = Depends(get_db)):
 def editar_vehiculo(
     vehiculo_id: int,
     vehiculo_actualizado: VehiculoBase,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     vehiculo = actualizar_vehiculo(db, vehiculo_id, vehiculo_actualizado)
+
+    if vehiculo == "PROPIETARIO_NO_EXISTE":
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="El propietario seleccionado no existe",
+        )
 
     if not vehiculo:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"No se encontró un vehículo con el ID '{vehiculo_id}'"
+            detail=f"No se encontró un vehículo con el ID '{vehiculo_id}'",
         )
 
     return vehiculo
-
 

@@ -124,7 +124,7 @@ return (
             <p><strong>Año:</strong> {resultado.vehiculo.anio}</p>
             <p className="md:col-span-2">
               <strong>Propietario:</strong>{" "}
-              {resultado.vehiculo.propietario || "No registrado"}
+              {resultado.vehiculo.propietario?.nombre || "No registrado"}
             </p>
           </div>
         </div>

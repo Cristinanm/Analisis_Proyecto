@@ -2,12 +2,18 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import Base, engine
+
+# IMPORTAR MODELOS ANTES DE CREATE_ALL
+from app.models.propietario import Propietario
+from app.models.vehiculo import Vehiculo
+from app.models.multa import Multa
+
 from app.api.vehiculo_router import router as vehiculo_router
 from app.api.multa_router import router as multa_router
 from app.api.routers_auth import router as auth_router
 from app.api.propietario_router import router as propietario_router
 from app.api.routers_reportes import router as reportes_router
-from app.api.consulta_multas_router import router as consulta_multas_router 
+from app.api.consulta_multas_router import router as consulta_multas_router
 from app.api.recibo_router import router as recibo_router
 
 
@@ -32,8 +38,9 @@ app.include_router(multa_router)
 app.include_router(auth_router)
 app.include_router(propietario_router)
 app.include_router(reportes_router)
-app.include_router(consulta_multas_router)  
+app.include_router(consulta_multas_router)
 app.include_router(recibo_router)
+
 
 @app.get("/")
 def root():
@@ -42,9 +49,11 @@ def root():
         "message": "Backend funcionando correctamente"
     }
 
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
 
 @app.get("/version")
 def obtener_version():

@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
+
 from app.database import Base
 
 
@@ -11,7 +12,8 @@ class Vehiculo(Base):
     marca = Column(String, nullable=False)
     modelo = Column(String, nullable=False)
     anio = Column(Integer, nullable=False)
-    propietario = Column(String, nullable=True, index = True)
 
+    propietario_id = Column(Integer, ForeignKey("propietarios.id"), nullable=False)
+
+    propietario = relationship("Propietario", back_populates="vehiculos")
     multas = relationship("Multa", back_populates="vehiculo")
-
