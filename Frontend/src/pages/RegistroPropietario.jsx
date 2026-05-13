@@ -1,71 +1,49 @@
 import { useState } from "react";
 
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "http://127.0.0.1:8000/api/propietarios/";
 
 export default function RegistroPropietario() {
   const [form, setForm] = useState({
-    dpi: "",
     nombre: "",
+    dpi: "",
     correo: "",
-    direccion: "",
     telefono: "",
+    direccion: "",
   });
 
+  const [mensaje, setMensaje] = useState("");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [propietarioGuardado, setPropietarioGuardado] = useState(null);
+  const [cargando, setCargando] = useState(false);
 
-  const inputClass =
-    "w-full border border-zinc-300 bg-white p-3 text-black placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-amber-400";
-
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const cambiarValor = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const limpiarFormulario = () => {
     setForm({
-      dpi: "",
       nombre: "",
+      dpi: "",
       correo: "",
-      direccion: "",
       telefono: "",
+      direccion: "",
     });
+
+    setMensaje("");
     setError("");
-    setSuccess("");
   };
 
-  const validar = () => {
-    if (!form.dpi || !form.nombre || !form.correo || !form.direccion || !form.telefono) {
-      return "Todos los campos son obligatorios";
-    }
-
-    if (form.dpi.length !== 13) {
-      return "El DPI debe tener 13 dígitos";
-    }
-
-    if (!form.correo.includes("@")) {
-      return "Correo inválido";
-    }
-
-    if (form.telefono.length < 6) {
-      return "El teléfono debe tener al menos 6 dígitos";
-    }
-
-    return "";
-  };
-
-  const handleSubmit = async (e) => {
+  const registrarPropietario = async (e) => {
     e.preventDefault();
 
-    const errorValidacion = validar();
-    if (errorValidacion) {
-      setError(errorValidacion);
-      setSuccess("");
-      return;
-    }
+    setMensaje("");
+    setError("");
+    setCargando(true);
 
     try {
-      const res = await fetch(`${API_URL}/api/propietarios/`, {
+      const response = await fetch(API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -73,159 +51,164 @@ export default function RegistroPropietario() {
         body: JSON.stringify(form),
       });
 
-      const data = await res.json();
+      const data = await response.json();
 
-      if (!res.ok) {
-        throw new Error(data.detail || "Error al registrar propietario");
+      if (!response.ok) {
+        throw new Error(
+          data.detail || "No se pudo registrar el propietario."
+        );
       }
 
-      setPropietarioGuardado(data);
-      setSuccess("Propietario registrado correctamente");
-      setError("");
+      setMensaje("Propietario registrado correctamente.");
 
       setForm({
-        dpi: "",
         nombre: "",
+        dpi: "",
         correo: "",
-        direccion: "",
         telefono: "",
+        direccion: "",
       });
     } catch (err) {
       setError(err.message);
-      setSuccess("");
+    } finally {
+      setCargando(false);
     }
   };
 
   return (
-    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-6 text-zinc-100 shadow-2xl">
-      <h2 className="mb-4 text-2xl font-bold">
-        Registro de Propietario de Vehículo
-      </h2>
+    <section className="min-h-screen bg-[#090b10] text-zinc-100">
+      <div className="mx-auto max-w-5xl p-6">
+        <div className="mb-6">
+          <p className="text-xs font-bold uppercase tracking-[0.3em] text-blue-400">
+            Módulo Personas
+          </p>
 
-      {error && (
-        <p className="mb-3 rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-red-300">
-          {error}
-        </p>
-      )}
+          <h1 className="mt-2 text-3xl font-bold text-white">
+            Registro de Propietario
+          </h1>
 
-      {success && (
-        <p className="mb-3 rounded-lg border border-green-500/40 bg-green-500/10 p-3 text-green-300">
-          {success}
-        </p>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          name="nombre"
-          placeholder="Nombre completo *"
-          value={form.nombre}
-          onChange={handleChange}
-          className={inputClass}
-        />
-
-        <input
-          name="dpi"
-          placeholder="DPI (13 dígitos) *"
-          value={form.dpi}
-          onChange={handleChange}
-          className={inputClass}
-        />
-
-        <input
-          name="correo"
-          placeholder="Correo electrónico *"
-          value={form.correo}
-          onChange={handleChange}
-          className={inputClass}
-        />
-
-        <input
-          name="telefono"
-          placeholder="Teléfono *"
-          value={form.telefono}
-          onChange={handleChange}
-          className={inputClass}
-        />
-
-        <input
-          name="direccion"
-          placeholder="Dirección *"
-          value={form.direccion}
-          onChange={handleChange}
-          className={inputClass}
-        />
-
-        <div className="flex gap-3">
-          <button className="rounded-lg bg-green-500 px-5 py-3 font-semibold text-white hover:bg-green-600">
-            Registrar
-          </button>
-
-          <button
-            type="button"
-            onClick={limpiarFormulario}
-            className="rounded-lg bg-gray-500 px-5 py-3 font-semibold text-white hover:bg-gray-600"
-          >
-            Cancelar
-          </button>
+          <p className="mt-2 text-sm text-zinc-400">
+            Ingresa la información del propietario del vehículo.
+          </p>
         </div>
-      </form>
 
-      {propietarioGuardado && (
-        <div className="mt-8 rounded-xl border border-zinc-700 bg-zinc-950 p-5">
-          <h3 className="mb-4 text-xl font-bold text-green-300">
-            Datos del propietario registrado
-          </h3>
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-8 shadow-2xl">
+          {mensaje && (
+            <div className="mb-5 rounded-xl border border-emerald-500/40 bg-emerald-950/40 p-4 text-emerald-300">
+              {mensaje}
+            </div>
+          )}
 
-          <div className="grid gap-3 text-sm md:grid-cols-2">
-            <p>
-              <strong>Nombre:</strong> {propietarioGuardado.nombre}
-            </p>
-            <p>
-              <strong>DPI:</strong> {propietarioGuardado.dpi}
-            </p>
-            <p>
-              <strong>Correo:</strong> {propietarioGuardado.correo}
-            </p>
-            <p>
-              <strong>Teléfono:</strong> {propietarioGuardado.telefono}
-            </p>
-            <p className="md:col-span-2">
-              <strong>Dirección:</strong> {propietarioGuardado.direccion}
-            </p>
-          </div>
+          {error && (
+            <div className="mb-5 rounded-xl border border-red-500/40 bg-red-950/40 p-4 text-red-300">
+              {error}
+            </div>
+          )}
 
-          <h3 className="mt-6 mb-3 text-lg font-bold">
-            Vehículos asociados
-          </h3>
+          <form onSubmit={registrarPropietario} className="space-y-6">
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-zinc-300">
+                Nombre completo
+              </label>
 
-          <div className="overflow-x-auto rounded-lg border border-zinc-700">
-            <table className="w-full text-sm">
-              <thead className="bg-zinc-800 text-zinc-200">
-                <tr>
-                  <th className="p-3 text-left">Placa</th>
-                  <th className="p-3 text-left">Marca</th>
-                  <th className="p-3 text-left">Modelo</th>
-                  <th className="p-3 text-left">Año</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td colSpan="4" className="p-4 text-center text-zinc-400">
-                    Sin vehículos asociados
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+              <input
+                type="text"
+                name="nombre"
+                value={form.nombre}
+                onChange={cambiarValor}
+                placeholder="Ej. Juan Carlos Pérez López"
+                className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-white outline-none transition placeholder:text-zinc-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                required
+              />
+            </div>
 
-          <button
-            type="button"
-            className="mt-5 rounded-lg bg-amber-400 px-5 py-3 font-semibold text-black hover:bg-amber-300"
-          >
-            Editar persona
-          </button>
+            <div className="grid gap-6 md:grid-cols-2">
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-zinc-300">
+                  DPI
+                </label>
+
+                <input
+                  type="text"
+                  name="dpi"
+                  value={form.dpi}
+                  onChange={cambiarValor}
+                  placeholder="13 dígitos"
+                  maxLength="13"
+                  className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-white outline-none transition placeholder:text-zinc-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-zinc-300">
+                  Teléfono
+                </label>
+
+                <input
+                  type="text"
+                  name="telefono"
+                  value={form.telefono}
+                  onChange={cambiarValor}
+                  placeholder="Ej. 55551234"
+                  className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-white outline-none transition placeholder:text-zinc-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-zinc-300">
+                Correo electrónico
+              </label>
+
+              <input
+                type="email"
+                name="correo"
+                value={form.correo}
+                onChange={cambiarValor}
+                placeholder="ejemplo@email.com"
+                className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-white outline-none transition placeholder:text-zinc-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-zinc-300">
+                Dirección
+              </label>
+
+              <textarea
+                name="direccion"
+                value={form.direccion}
+                onChange={cambiarValor}
+                placeholder="Ej. Zona 1, Ciudad de Guatemala"
+                rows="3"
+                className="w-full resize-none rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-white outline-none transition placeholder:text-zinc-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                required
+              />
+            </div>
+
+            <div className="flex flex-col gap-3 pt-2 sm:flex-row">
+              <button
+                type="submit"
+                disabled={cargando}
+                className="rounded-xl bg-blue-600 px-6 py-3 font-bold text-white shadow-lg shadow-blue-900/30 transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {cargando ? "Registrando..." : "Registrar propietario"}
+              </button>
+
+              <button
+                type="button"
+                onClick={limpiarFormulario}
+                className="rounded-xl border border-zinc-700 bg-zinc-800 px-6 py-3 font-bold text-zinc-200 transition hover:bg-zinc-700"
+              >
+                Cancelar
+              </button>
+            </div>
+          </form>
         </div>
-      )}
-    </div>
+      </div>
+    </section>
   );
 }

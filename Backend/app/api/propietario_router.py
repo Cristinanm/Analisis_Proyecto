@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.schemas.propietario_schema import (
+    HistorialPropietarioResponse,
     PropietarioCreate,
     PropietarioResponse,
     PropietarioUpdate,
@@ -12,6 +13,7 @@ from app.services.propietario_service import (
     buscar_propietarios,
     crear_propietario,
     listar_propietarios,
+    obtener_historial_propietario,
     obtener_propietario_por_correo,
     obtener_propietario_por_dpi,
     obtener_propietario_por_id,
@@ -90,6 +92,25 @@ def buscar_propietario(
         dpi=dpi_valor,
         nombre=nombre_valor,
     )
+
+@router.get("/{propietario_id}/historial", response_model=HistorialPropietarioResponse)
+def consultar_historial_propietario(
+    propietario_id: int,
+    db: Session = Depends(get_db),
+):
+    historial = obtener_historial_propietario(
+        db,
+        propietario_id,
+    )
+
+    if not historial:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Propietario no encontrado.",
+        )
+
+    return historial
+
 
 
 @router.get("/{propietario_id}", response_model=PropietarioResponse)
