@@ -22,3 +22,32 @@ class PropietarioResponse(PropietarioBase):
 
     class Config:
         from_attributes = True
+
+class VehiculoHistorialResponse(BaseModel):
+    id: int
+    placa: str
+    marca: str
+    modelo: str
+    anio: int
+
+    class Config:
+        from_attributes = True
+
+
+class MultaHistorialResponse(BaseModel):
+    id: int
+    fecha: str
+    tipo_infraccion: str
+    descripcion: str
+    monto_base: float
+    estado: str
+    placa: str | None = None
+
+    class Config:
+        from_attributes = True
+
+
+class HistorialPropietarioResponse(BaseModel):
+    propietario: PropietarioResponse
+    vehiculos: list[VehiculoHistorialResponse]
+    multas: list[MultaHistorialResponse]

@@ -4,7 +4,7 @@ import RegistroPropietario from "./pages/RegistroPropietario";
 import GestionUsuarios from "./pages/GestionUsuarios";
 import RegistroMultas from "./pages/RegistroMultas";
 import RegistroVehiculos from "./pages/RegistroVehiculos";
-
+import HistorialPropietarios from "./pages/HistorialPropietarios";
 import ReporteMultasEstado from "./pages/ReporteMultasEstado";
 import ConsultaMultasPorPlaca from "./pages/ConsultaMultasPorPlaca";
 import BusquedaRecibos from "./pages/BusquedaRecibos";
@@ -29,6 +29,7 @@ const MODULOS = [
   {key: "vehiculos",label: "Registro Vehículos",icon: TicketIcon,},
 
   { key: "personas", label: "Modulo Personas", icon: UsersIcon },
+  { key: "historial-propietarios", label: "Historial Propietarios", icon: UsersIcon },
   { key: "reportes", label: "Control de multas", icon: TicketIcon },
   { key: "perfil", label: "Mi Perfil", icon: UserIcon },
   { key: "usuarios", label: "Gestion Usuarios", icon: UsersIcon },
@@ -83,6 +84,10 @@ function App() {
     if (moduloActivo === "personas") {
       return <RegistroPropietario />;
     }
+
+    if (moduloActivo === "historial-propietarios") {
+      return <HistorialPropietarios />;
+    } 
 
     if (moduloActivo === "reportes") {
       return <ReporteMultasEstado />;
