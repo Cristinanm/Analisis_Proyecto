@@ -256,3 +256,63 @@ def obtener_conteo_multas_por_estado(db: Session = Depends(get_db)):
 @router.get("/dashboard", response_model=DashboardSummary)
 def get_dashboard_summary(db: Session = Depends(get_db)):
     return obtener_totales_dashboard(db)
+
+
+# RF-64: Ingresos recaudados por dia, mes y año
+@router.get("/ingresos-recaudados")
+def obtener_ingresos_recaudados(
+    agrupacion: str = Query("dia", description="Opciones: dia, mes, anio"),
+    db: Session = Depends(get_db),
+):
+    agrupacion = agrupacion.lower().strip()
+
+    if agrupacion not in ["dia", "mes", "anio"]:
+        raise HTTPException(
+            status_code=400,
+            detail="Agrupacion invalida. Use: dia, mes o anio.",
+        )
+
+    multas_pagadas = (
+        db.query(Multa)
+        .filter(func.lower(Multa.estado) == "pagada")
+        .filter(Multa.fecha_pago.isnot(None))
+        .all()
+    )
+
+    ingresos = {}
+
+    for multa in multas_pagadas:
+        fecha_pago = str(multa.fecha_pago)
+
+        if agrupacion == "dia":
+            periodo = fecha_pago[:10]
+        elif agrupacion == "mes":
+            periodo = fecha_pago[:7]
+        else:
+            periodo = fecha_pago[:4]
+
+        monto = float(multa.monto_final or multa.monto_base or 0.0)
+
+        if periodo not in ingresos:
+            ingresos[periodo] = {
+                "periodo": periodo,
+                "total_recaudado": 0.0,
+                "cantidad_multas": 0,
+            }
+
+        ingresos[periodo]["total_recaudado"] += monto
+        ingresos[periodo]["cantidad_multas"] += 1
+
+    items = list(ingresos.values())
+    items.sort(key=lambda item: item["periodo"])
+
+    total_general = sum(item["total_recaudado"] for item in items)
+
+    for item in items:
+        item["total_recaudado"] = round(item["total_recaudado"], 2)
+
+    return {
+        "agrupacion": agrupacion,
+        "total_general": round(total_general, 2),
+        "items": items,
+    }

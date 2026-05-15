@@ -4,13 +4,16 @@ import RegistroPropietario from "./pages/RegistroPropietario";
 import GestionUsuarios from "./pages/GestionUsuarios";
 import RegistroMultas from "./pages/RegistroMultas";
 import RegistroVehiculos from "./pages/RegistroVehiculos";
+
 import HistorialPropietarios from "./pages/HistorialPropietarios";
+
 import ReporteMultasEstado from "./pages/ReporteMultasEstado";
+import IngresosRecaudados from "./pages/IngresosRecaudados";
 import ConsultaMultasPorPlaca from "./pages/ConsultaMultasPorPlaca";
+import BusquedaAvanzadaVehiculos from "./pages/BusquedaAvanzadaVehiculos";
 import BusquedaRecibos from "./pages/BusquedaRecibos";
 
 import { Dashboard } from "./pages/Dashboard";
-
 
 import {
   HomeIcon,
@@ -24,13 +27,14 @@ import { getMyProfile } from "./services/authApi";
 const MODULOS = [
   { key: "inicio", label: "Inicio", icon: HomeIcon },
   { key: "multas", label: "Registro de Multas", icon: TicketIcon },
-
-  { key: "consulta-multas", label: "Control de Infracciones", icon: TicketIcon },
-  {key: "vehiculos",label: "Registro Vehículos",icon: TicketIcon,},
-
+  { key: "consulta-multas", label: "Consulta por Placa", icon: TicketIcon },
+  { key: "control-infracciones", label: "Control de Infracciones", icon: TicketIcon },
+  { key: "vehiculos", label: "Registro Vehículos", icon: TicketIcon },
+  { key: "busqueda-vehiculos", label: "Búsqueda Vehículos", icon: TicketIcon },
   { key: "personas", label: "Modulo Personas", icon: UsersIcon },
   { key: "historial-propietarios", label: "Historial Propietarios", icon: UsersIcon },
   { key: "reportes", label: "Control de multas", icon: TicketIcon },
+  { key: "ingresos-recaudados", label: "Ingresos Recaudados", icon: TicketIcon },
   { key: "perfil", label: "Mi Perfil", icon: UserIcon },
   { key: "usuarios", label: "Gestion Usuarios", icon: UsersIcon },
   { key: "visor-recibos", label: "Visor de Recibos", icon: TicketIcon },
@@ -61,9 +65,8 @@ function App() {
 
   const contenido = useMemo(() => {
     if (moduloActivo === "visor-recibos") {
-  return <BusquedaRecibos />;
-}
-
+      return <BusquedaRecibos />;
+    }
 
     if (moduloActivo === "inicio") {
       return <Dashboard />;
@@ -77,8 +80,16 @@ function App() {
       return <ConsultaMultasPorPlaca />;
     }
 
+    if (moduloActivo === "control-infracciones") {
+      return <ConsultaMultasPorPlaca />;
+    }
+
     if (moduloActivo === "vehiculos") {
       return <RegistroVehiculos token={token} />;
+    }
+
+    if (moduloActivo === "busqueda-vehiculos") {
+      return <BusquedaAvanzadaVehiculos />;
     }
 
     if (moduloActivo === "personas") {
@@ -87,10 +98,14 @@ function App() {
 
     if (moduloActivo === "historial-propietarios") {
       return <HistorialPropietarios />;
-    } 
+    }
 
     if (moduloActivo === "reportes") {
       return <ReporteMultasEstado />;
+    }
+
+    if (moduloActivo === "ingresos-recaudados") {
+      return <IngresosRecaudados />;
     }
 
     if (moduloActivo === "perfil") {

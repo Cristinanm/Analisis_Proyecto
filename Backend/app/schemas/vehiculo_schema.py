@@ -14,15 +14,15 @@ class VehiculoBase(BaseModel):
     marca: str
     modelo: str
     anio: int
-    propietario_id: int
 
 
 class VehiculoCreate(VehiculoBase):
-    pass
+    propietario_id: int
 
 
 class VehiculoResponse(VehiculoBase):
     id: int
+    propietario_id: int | None = None
     propietario: PropietarioSimple | None = None
 
     class Config:
