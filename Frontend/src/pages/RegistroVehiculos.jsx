@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 const API_URL = "http://127.0.0.1:8000/api/vehiculos/";
+const PROPIETARIOS_URL = "http://127.0.0.1:8000/api/propietarios/";
 
 export default function RegistroVehiculos({ token }) {
   const [formData, setFormData] = useState({
@@ -8,16 +9,18 @@ export default function RegistroVehiculos({ token }) {
     marca: "",
     modelo: "",
     anio: "",
-    propietario: "",
+    propietario_id: "",
   });
 
   const [mensaje, setMensaje] = useState("");
   const [error, setError] = useState("");
   const [cargando, setCargando] = useState(false);
 
-  // NUEVO: estados para listar vehículos existentes
   const [vehiculos, setVehiculos] = useState([]);
   const [cargandoVehiculos, setCargandoVehiculos] = useState(false);
+
+  const [propietarios, setPropietarios] = useState([]);
+  const [cargandoPropietarios, setCargandoPropietarios] = useState(false);
 
   const totalVehiculos = useMemo(() => vehiculos.length, [vehiculos]);
 
@@ -26,7 +29,6 @@ export default function RegistroVehiculos({ token }) {
 
   const labelClass = "mb-1 block font-semibold text-zinc-200";
 
-  // NUEVO: función para cargar todos los vehículos
   const cargarVehiculos = async () => {
     setCargandoVehiculos(true);
     setError("");
@@ -53,9 +55,33 @@ export default function RegistroVehiculos({ token }) {
     }
   };
 
-  // NUEVO: cargar vehículos al abrir la pantalla
+  const cargarPropietarios = async () => {
+    setCargandoPropietarios(true);
+
+    try {
+      const response = await fetch(PROPIETARIOS_URL, {
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("No se pudieron cargar los propietarios");
+      }
+
+      const data = await response.json();
+      setPropietarios(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setError(err.message || "Error al cargar propietarios");
+    } finally {
+      setCargandoPropietarios(false);
+    }
+  };
+
   useEffect(() => {
     cargarVehiculos();
+    cargarPropietarios();
   }, []);
 
   const handleChange = (e) => {
@@ -71,8 +97,26 @@ export default function RegistroVehiculos({ token }) {
       marca: "",
       modelo: "",
       anio: "",
-      propietario: "",
+      propietario_id: "",
     });
+  };
+
+  const obtenerNombrePropietario = (propietario) => {
+    if (!propietario) return "Sin propietario";
+
+    if (typeof propietario === "string") {
+      return propietario;
+    }
+
+    if (propietario.nombre) {
+      return propietario.nombre;
+    }
+
+    const nombreCompleto = `${propietario.nombres || ""} ${
+      propietario.apellidos || ""
+    }`.trim();
+
+    return nombreCompleto || "Sin propietario";
   };
 
   const handleSubmit = async (e) => {
@@ -87,7 +131,7 @@ export default function RegistroVehiculos({ token }) {
       marca: formData.marca.trim(),
       modelo: formData.modelo.trim(),
       anio: Number(formData.anio),
-      propietario: formData.propietario.trim(),
+      propietario_id: Number(formData.propietario_id),
     };
 
     try {
@@ -107,8 +151,6 @@ export default function RegistroVehiculos({ token }) {
 
       setMensaje("Vehículo registrado correctamente");
       limpiarFormulario();
-
-      // NUEVO: recargar la lista después de registrar
       await cargarVehiculos();
     } catch (err) {
       setError(err.message || "Error al registrar vehículo");
@@ -196,15 +238,27 @@ export default function RegistroVehiculos({ token }) {
 
           <div className="md:col-span-2">
             <label className={labelClass}>Propietario</label>
-            <input
-              type="text"
-              name="propietario"
-              value={formData.propietario}
+
+            <select
+              name="propietario_id"
+              value={formData.propietario_id}
               onChange={handleChange}
-              placeholder="Nombre del propietario"
               className={inputClass}
               required
-            />
+            >
+              <option value="">
+                {cargandoPropietarios
+                  ? "Cargando propietarios..."
+                  : "Seleccione un propietario"}
+              </option>
+
+              {propietarios.map((propietario) => (
+                <option key={propietario.id} value={propietario.id}>
+                  {obtenerNombrePropietario(propietario)}
+                  {propietario.dpi ? ` - DPI: ${propietario.dpi}` : ""}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="flex gap-3 md:col-span-2">
@@ -219,7 +273,6 @@ export default function RegistroVehiculos({ token }) {
         </form>
       </section>
 
-      {/* NUEVO: panel para listar todos los vehículos existentes */}
       <section className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-8 shadow-2xl backdrop-blur">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -281,16 +334,18 @@ export default function RegistroVehiculos({ token }) {
                     <td className="px-4 py-3 text-zinc-500">
                       {vehiculo.id}
                     </td>
+
                     <td className="px-4 py-3">
                       <span className="rounded-full bg-blue-500/15 px-3 py-1 text-xs font-semibold text-blue-200">
                         {vehiculo.placa}
                       </span>
                     </td>
+
                     <td className="px-4 py-3">{vehiculo.marca}</td>
                     <td className="px-4 py-3">{vehiculo.modelo}</td>
                     <td className="px-4 py-3">{vehiculo.anio}</td>
                     <td className="px-4 py-3">
-                      {vehiculo.propietario || "Sin propietario"}
+                      {obtenerNombrePropietario(vehiculo.propietario)}
                     </td>
                   </tr>
                 ))}
