@@ -31,3 +31,10 @@ export function crearVehiculo(payload, token) {
     body: JSON.stringify(payload),
   });
 }
+
+export function editarVehiculo(vehiculo_id, payload) {
+    return request(`/api/vehiculos/${vehiculo_id}`, {
+        method: "PUT",
+        body: JSON.stringify(payload),
+    });
+}
