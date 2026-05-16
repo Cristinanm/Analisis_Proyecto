@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+// Importamos la función que creaste en el paso anterior
+import { editarVehiculo } from "../services/vehiculoApi"; 
 
 const API_URL = "http://127.0.0.1:8000/api/vehiculos/";
 const PROPIETARIOS_URL = "http://127.0.0.1:8000/api/propietarios/";
@@ -21,6 +23,11 @@ export default function RegistroVehiculos({ token }) {
 
   const [propietarios, setPropietarios] = useState([]);
   const [cargandoPropietarios, setCargandoPropietarios] = useState(false);
+
+  // --- NUEVOS ESTADOS PARA LA EDICIÓN ---
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [vehiculoEditando, setVehiculoEditando] = useState(null);
+  const [cargandoEdicion, setCargandoEdicion] = useState(false);
 
   const totalVehiculos = useMemo(() => vehiculos.length, [vehiculos]);
 
@@ -159,8 +166,56 @@ export default function RegistroVehiculos({ token }) {
     }
   };
 
+  // --- FUNCIONES PARA LA EDICIÓN ---
+  const abrirModalEdicion = (vehiculo) => {
+    setVehiculoEditando({
+      id: vehiculo.id,
+      placa: vehiculo.placa,
+      marca: vehiculo.marca,
+      modelo: vehiculo.modelo,
+      anio: vehiculo.anio,
+    });
+    setModalAbierto(true);
+  };
+
+  const cerrarModal = () => {
+    setModalAbierto(false);
+    setVehiculoEditando(null);
+  };
+
+  const handleEditChange = (e) => {
+    setVehiculoEditando({
+      ...vehiculoEditando,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    setCargandoEdicion(true);
+    setError("");
+    setMensaje("");
+
+    try {
+      await editarVehiculo(vehiculoEditando.id, {
+        placa: vehiculoEditando.placa.toUpperCase().trim(),
+        marca: vehiculoEditando.marca.trim(),
+        modelo: vehiculoEditando.modelo.trim(),
+        anio: Number(vehiculoEditando.anio),
+      });
+
+      setMensaje("Vehículo actualizado correctamente");
+      cerrarModal();
+      await cargarVehiculos(); // Recargamos la tabla para ver los cambios
+    } catch (err) {
+      setError(err.message || "Error al actualizar vehículo");
+    } finally {
+      setCargandoEdicion(false);
+    }
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
       <section className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-8 shadow-2xl backdrop-blur">
         <div className="mb-6">
           <h2 className="text-3xl font-bold text-zinc-100">
@@ -322,6 +377,7 @@ export default function RegistroVehiculos({ token }) {
                   <th className="px-4 py-3">Modelo</th>
                   <th className="px-4 py-3">Año</th>
                   <th className="px-4 py-3">Propietario</th>
+                  <th className="px-4 py-3 text-center">Acciones</th>
                 </tr>
               </thead>
 
@@ -329,7 +385,7 @@ export default function RegistroVehiculos({ token }) {
                 {vehiculos.map((vehiculo) => (
                   <tr
                     key={vehiculo.id}
-                    className="border-t border-zinc-800 text-zinc-200"
+                    className="border-t border-zinc-800 text-zinc-200 hover:bg-zinc-800/30 transition-colors"
                   >
                     <td className="px-4 py-3 text-zinc-500">
                       {vehiculo.id}
@@ -347,6 +403,14 @@ export default function RegistroVehiculos({ token }) {
                     <td className="px-4 py-3">
                       {obtenerNombrePropietario(vehiculo.propietario)}
                     </td>
+                    <td className="px-4 py-3 text-center">
+                      <button
+                        onClick={() => abrirModalEdicion(vehiculo)}
+                        className="rounded-lg bg-indigo-600/20 px-3 py-1.5 text-xs font-semibold text-indigo-300 hover:bg-indigo-600 hover:text-white transition"
+                      >
+                        Editar
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -354,6 +418,82 @@ export default function RegistroVehiculos({ token }) {
           </div>
         )}
       </section>
+
+      {/* --- MODAL DE EDICIÓN --- */}
+      {modalAbierto && vehiculoEditando && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+          <div className="w-full max-w-md rounded-2xl border border-zinc-700 bg-zinc-900 p-6 shadow-2xl">
+            <h3 className="mb-4 text-2xl font-bold text-white">Editar Vehículo</h3>
+            
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div>
+                <label className={labelClass}>Placa</label>
+                <input
+                  type="text"
+                  name="placa"
+                  value={vehiculoEditando.placa}
+                  onChange={handleEditChange}
+                  className={inputClass}
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className={labelClass}>Marca</label>
+                <input
+                  type="text"
+                  name="marca"
+                  value={vehiculoEditando.marca}
+                  onChange={handleEditChange}
+                  className={inputClass}
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className={labelClass}>Modelo</label>
+                <input
+                  type="text"
+                  name="modelo"
+                  value={vehiculoEditando.modelo}
+                  onChange={handleEditChange}
+                  className={inputClass}
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className={labelClass}>Año</label>
+                <input
+                  type="number"
+                  name="anio"
+                  value={vehiculoEditando.anio}
+                  onChange={handleEditChange}
+                  className={inputClass}
+                  required
+                />
+              </div>
+
+              <div className="mt-6 flex justify-end gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={cerrarModal}
+                  className="rounded-xl border border-zinc-700 bg-zinc-800 px-4 py-2 font-semibold text-zinc-300 hover:bg-zinc-700 transition"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={cargandoEdicion}
+                  className="rounded-xl bg-indigo-600 px-4 py-2 font-semibold text-white hover:bg-indigo-500 disabled:opacity-50 transition"
+                >
+                  {cargandoEdicion ? "Guardando..." : "Guardar Cambios"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
