@@ -45,38 +45,18 @@ def listar_vehiculos(db: Session):
     return db.query(Vehiculo).order_by(Vehiculo.id.asc()).all()
 
 
-def actualizar_vehiculo(db: Session, vehiculo_id: int, datos: VehiculoBase):
+def actualizar_vehiculo(db: Session, vehiculo_id: int, datos):
     db_vehiculo = db.query(Vehiculo).filter(Vehiculo.id == vehiculo_id).first()
-
-
-    if db_vehiculo:
-        db_vehiculo.placa = datos.placa.upper()
-        db_vehiculo.marca = datos.marca
-        db_vehiculo.modelo = datos.modelo
-        db_vehiculo.anio = datos.anio
-        db_vehiculo.propietario = datos.propietario
-
-        db.commit()
-        db.refresh(db_vehiculo)
-
+    
     if not db_vehiculo:
         return None
-
-    propietario = db.query(Propietario).filter(
-        Propietario.id == datos.propietario_id
-    ).first()
-
-    if not propietario:
-        return "PROPIETARIO_NO_EXISTE"
-
-    db_vehiculo.placa = datos.placa.upper().strip()
-    db_vehiculo.marca = datos.marca.strip()
-    db_vehiculo.modelo = datos.modelo.strip()
+        
+    # Actualizamos solo los datos que vienen en VehiculoBase
+    db_vehiculo.placa = datos.placa
+    db_vehiculo.marca = datos.marca
+    db_vehiculo.modelo = datos.modelo
     db_vehiculo.anio = datos.anio
-    db_vehiculo.propietario_id = datos.propietario_id
-
+    
     db.commit()
     db.refresh(db_vehiculo)
-
-
     return db_vehiculo
