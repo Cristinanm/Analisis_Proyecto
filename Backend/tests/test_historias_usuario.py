@@ -22,6 +22,12 @@ def test_version():
     assert "version" in response.json()
 
 
+def test_root_responde():
+    response = client.get("/")
+
+    assert response.status_code in [200, 404]
+
+
 # ======================================================
 # SIS-37-RF-1 REGISTRO DE MULTAS
 # ======================================================
@@ -94,6 +100,17 @@ def test_reporte_estado_multas():
     assert "total_multas" in data
 
 
+def test_reporte_multas_tiene_items():
+    response = client.get("/api/reportes/multas")
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert "items" in data
+    assert isinstance(data["items"], list)
+
+
 # ======================================================
 # SIS-83-RF-63 REPORTES UNIFICADOS
 # ======================================================
@@ -137,6 +154,16 @@ def test_registro_usuario():
     assert response.status_code in [200, 201, 400]
 
 
+def test_token_invalido():
+    headers = {
+        "Authorization": "Bearer token_invalido"
+    }
+
+    response = client.get("/auth/me", headers=headers)
+
+    assert response.status_code in [401, 403]
+
+
 # ======================================================
 # TEST EXTRA VEHICULO POR PLACA
 # ======================================================
@@ -155,3 +182,114 @@ def test_dashboard():
     response = client.get("/api/reportes/dashboard")
 
     assert response.status_code == 200
+
+
+def test_dashboard_tiene_totales():
+    response = client.get("/api/reportes/dashboard")
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert "total_vehiculos" in data
+    assert "multas_pagadas" in data
+    assert "multas_pendientes" in data
+
+
+# ======================================================
+# RF-18 CREACION PERSONA
+# ======================================================
+
+def test_listar_propietarios():
+    response = client.get("/api/propietarios/")
+
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
+
+
+def test_propietario_no_existente():
+    response = client.get("/api/propietarios/99999")
+
+    assert response.status_code in [404]
+
+
+def test_campos_obligatorios_propietario():
+    payload = {
+        "nombres": "",
+        "apellidos": "",
+        "dpi": "",
+        "correo": ""
+    }
+
+    response = client.post("/api/propietarios/", json=payload)
+
+    assert response.status_code in [400, 422]
+
+
+def test_dpi_duplicado():
+    payload = {
+        "dpi": "1234567890101",
+        "nombre": "Juan Perez",
+        "correo": "juan1@gmail.com",
+        "direccion": "Zona 1",
+        "telefono": "55554444"
+    }
+
+    response = client.post("/api/propietarios/", json=payload)
+
+    assert response.status_code in [201, 400]
+
+
+def test_correo_duplicado():
+    payload = {
+        "dpi": "9876543210101",
+        "nombre": "Carlos Lopez",
+        "correo": "pytest01@gmail.com",
+        "direccion": "Zona 10",
+        "telefono": "55556666"
+    }
+
+    response = client.post("/api/propietarios/", json=payload)
+
+    assert response.status_code in [201, 400]
+
+# ======================================================
+# RF-61 / RF-66 / RF-67 HISTORIAL PROPIETARIOS
+# ======================================================
+
+def test_historial_propietario_inexistente():
+    response = client.get("/api/propietarios/99999/historial")
+
+    assert response.status_code in [404]
+
+
+def test_historial_propietario_inexistente():
+    response = client.get("/api/propietarios/99999/historial")
+
+    assert response.status_code in [404]
+
+
+# ======================================================
+# RF-25 DASHBOARD
+# ======================================================
+
+def test_dashboard_rf25():
+    response = client.get("/api/reportes/dashboard")
+
+    assert response.status_code == 200
+
+
+# ======================================================
+# RF-39 CONSULTA MULTAS POR PLACA
+# ======================================================
+
+def test_consulta_placa_inexistente():
+    response = client.get("/api/vehiculos/placa/XXX999")
+
+    assert response.status_code in [404]
+
+
+def test_vehiculo_sin_multas():
+    response = client.get("/api/vehiculos/placa/P000XYZ")
+
+    assert response.status_code in [200, 404]
