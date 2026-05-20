@@ -38,3 +38,9 @@ export function editarVehiculo(vehiculo_id, payload) {
         body: JSON.stringify(payload),
     });
 }
+
+export function eliminarVehiculo(vehiculo_id) {
+    return request(`/api/vehiculos/${vehiculo_id}`, {
+        method: "DELETE",
+    });
+}

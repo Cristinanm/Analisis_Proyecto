@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 // Importamos la función que creaste en el paso anterior
-import { editarVehiculo } from "../services/vehiculoApi"; 
+
+import { editarVehiculo, eliminarVehiculo } from "../services/vehiculoApi";
 
 const API_URL = "http://127.0.0.1:8000/api/vehiculos/";
 const PROPIETARIOS_URL = "http://127.0.0.1:8000/api/propietarios/";
@@ -214,6 +215,18 @@ export default function RegistroVehiculos({ token }) {
     }
   };
 
+const handleEliminar = async (id) => {
+    if (window.confirm("¿Estás seguro de que deseas eliminar este vehículo? Esta acción no se puede deshacer.")) {
+      try {
+        await eliminarVehiculo(id);
+        setMensaje("Vehículo eliminado correctamente");
+        await cargarVehiculos(); // Recargar la tabla
+      } catch (err) {
+        setError(err.message || "Error al eliminar el vehículo");
+      }
+    }
+  };
+
   return (
     <div className="space-y-6 relative">
       <section className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-8 shadow-2xl backdrop-blur">
@@ -403,14 +416,20 @@ export default function RegistroVehiculos({ token }) {
                     <td className="px-4 py-3">
                       {obtenerNombrePropietario(vehiculo.propietario)}
                     </td>
-                    <td className="px-4 py-3 text-center">
-                      <button
-                        onClick={() => abrirModalEdicion(vehiculo)}
-                        className="rounded-lg bg-indigo-600/20 px-3 py-1.5 text-xs font-semibold text-indigo-300 hover:bg-indigo-600 hover:text-white transition"
-                      >
-                        Editar
-                      </button>
-                    </td>
+                <td className="px-4 py-3 text-center flex justify-center gap-2">
+  <button
+    onClick={() => abrirModalEdicion(vehiculo)}
+    className="rounded-lg bg-indigo-600/20 px-3 py-1.5 text-xs font-semibold text-indigo-300 hover:bg-indigo-600 hover:text-white transition"
+  >
+    Editar
+  </button>
+  <button
+    onClick={() => handleEliminar(vehiculo.id)}
+    className="rounded-lg bg-red-600/20 px-3 py-1.5 text-xs font-semibold text-red-300 hover:bg-red-600 hover:text-white transition"
+  >
+    Eliminar
+  </button>
+</td>
                   </tr>
                 ))}
               </tbody>

@@ -97,3 +97,28 @@ def editar_vehiculo(
 
     return vehiculo
 
+
+from sqlalchemy.exc import IntegrityError
+
+@router.delete("/{vehiculo_id}")
+def eliminar_vehiculo(vehiculo_id: int, db: Session = Depends(get_db)):
+    vehiculo = db.query(Vehiculo).filter(Vehiculo.id == vehiculo_id).first()
+    
+    if not vehiculo:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"No se encontró un vehículo con el ID '{vehiculo_id}'"
+        )
+        
+    try:
+        db.delete(vehiculo)
+        db.commit()
+        return {"mensaje": "Vehículo eliminado correctamente"}
+    except IntegrityError:
+        # Esto pasa si intentamos borrar un carro que ya tiene multas guardadas
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No se puede eliminar el vehículo porque ya tiene multas asociadas."
+        )
+
