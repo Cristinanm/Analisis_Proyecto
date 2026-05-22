@@ -75,7 +75,7 @@ def obtener_historial_propietario(db: Session, propietario_id: int):
 
     vehiculos = (
         db.query(Vehiculo)
-        .filter(Vehiculo.propietario.ilike(f"%{propietario.nombre}%"))
+        .filter(Vehiculo.propietario_id == propietario.id)
         .order_by(Vehiculo.placa.asc())
         .all()
     )

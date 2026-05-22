@@ -22,3 +22,9 @@ Thumbs.db
 .env
 *.env
 !.env.example
+
+Frontend/.npm-cache/
+Frontend/node_modules/
+Frontend/dist/
+Backend/__pycache__/
+
