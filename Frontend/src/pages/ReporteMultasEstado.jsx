@@ -114,6 +114,38 @@ function ReporteMultasEstado() {
     }, 0);
   };
 
+  const exportarCSV = () => {
+    const params = new URLSearchParams();
+
+    if (estado !== "todas") {
+      params.append("estado", estado);
+    }
+
+    if (placa.trim()) {
+      params.append("placa", placa.trim());
+    }
+
+    if (fechaInicio) {
+      params.append("fecha_inicio", fechaInicio);
+    }
+
+    if (fechaFin) {
+      params.append("fecha_fin", fechaFin);
+    }
+
+    const queryString = params.toString();
+    const url = `${API_BASE}/api/reportes/multas/exportar-csv${
+      queryString ? `?${queryString}` : ""
+    }`;
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "reporte_multas.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const exportarPDF = () => {
     if (multas.length === 0) {
       alert("No hay datos para exportar.");
@@ -183,12 +215,19 @@ function ReporteMultasEstado() {
             </p>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <button
               onClick={obtenerResumen}
               className="rounded-xl border border-blue-500 px-5 py-3 text-sm font-semibold text-blue-400 transition hover:bg-blue-600 hover:text-white"
             >
               Actualizar
+            </button>
+
+            <button
+              onClick={exportarCSV}
+              className="rounded-xl bg-yellow-400 px-5 py-3 text-sm font-bold text-zinc-950 transition hover:bg-yellow-300"
+            >
+              Exportar CSV
             </button>
 
             <button
