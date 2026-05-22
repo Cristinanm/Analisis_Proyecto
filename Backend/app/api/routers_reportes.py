@@ -1,5 +1,9 @@
 from datetime import datetime
+import csv
+from io import StringIO
+
 from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func
 
@@ -316,3 +320,115 @@ def obtener_ingresos_recaudados(
         "total_general": round(total_general, 2),
         "items": items,
     }
+
+
+# SIS-93 / RF-93: Exportacion de reporte de multas a CSV
+@router.get("/multas/exportar-csv")
+def exportar_reporte_multas_csv(
+    estado: str | None = Query(default=None),
+    placa: str | None = Query(default=None),
+    fecha_inicio: str | None = Query(default=None),
+    fecha_fin: str | None = Query(default=None),
+    db: Session = Depends(get_db),
+):
+    query = (
+        db.query(Multa)
+        .join(Vehiculo)
+        .options(joinedload(Multa.vehiculo))
+    )
+
+    if estado:
+        estado_limpio = estado.strip().lower()
+
+        if estado_limpio in ["pagada", "pagadas"]:
+            query = query.filter(func.lower(Multa.estado) == "pagada")
+
+        elif estado_limpio in ["pendiente", "pendientes"]:
+            query = query.filter(
+                func.lower(Multa.estado).in_(["pendiente", "pendientes"])
+            )
+
+    if placa:
+        query = query.filter(Vehiculo.placa.ilike(f"%{placa.strip()}%"))
+
+    fecha_inicio_dt = convertir_fecha(fecha_inicio) if fecha_inicio else None
+    fecha_fin_dt = convertir_fecha(fecha_fin) if fecha_fin else None
+
+    if fecha_inicio and not fecha_inicio_dt:
+        raise HTTPException(
+            status_code=400,
+            detail="Formato de fecha_inicio invalido. Use YYYY-MM-DD",
+        )
+
+    if fecha_fin and not fecha_fin_dt:
+        raise HTTPException(
+            status_code=400,
+            detail="Formato de fecha_fin invalido. Use YYYY-MM-DD",
+        )
+
+    if fecha_inicio_dt and fecha_fin_dt and fecha_inicio_dt > fecha_fin_dt:
+        raise HTTPException(
+            status_code=400,
+            detail="La fecha inicio no puede ser mayor que la fecha fin",
+        )
+
+    multas = query.order_by(Multa.id.desc()).all()
+
+    output = StringIO()
+    output.write("\ufeff")
+
+    writer = csv.writer(output)
+    writer.writerow(
+        [
+            "ID",
+            "Placa",
+            "Fecha",
+            "Fecha de pago",
+            "Tipo de infraccion",
+            "Monto base",
+            "Descuento o mora",
+            "Monto final",
+            "Estado",
+        ]
+    )
+
+    for multa in multas:
+        estado_multa = (multa.estado or "").lower()
+        fecha_reporte = multa.fecha_pago if estado_multa == "pagada" else multa.fecha
+        fecha_reporte_dt = convertir_fecha(fecha_reporte) if fecha_reporte else None
+
+        if fecha_inicio_dt and fecha_reporte_dt:
+            if fecha_reporte_dt.date() < fecha_inicio_dt.date():
+                continue
+
+        if fecha_fin_dt and fecha_reporte_dt:
+            if fecha_reporte_dt.date() > fecha_fin_dt.date():
+                continue
+
+        monto_base = float(multa.monto_base or 0.0)
+        descuento_mora = float(multa.descuento_mora or 0.0)
+        monto_final = float(multa.monto_final or (monto_base + descuento_mora))
+
+        writer.writerow(
+            [
+                multa.id,
+                multa.vehiculo.placa if multa.vehiculo else "N/A",
+                multa.fecha or "",
+                multa.fecha_pago or "",
+                multa.tipo_infraccion or "",
+                round(monto_base, 2),
+                round(descuento_mora, 2),
+                round(monto_final, 2),
+                multa.estado or "",
+            ]
+        )
+
+    output.seek(0)
+
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv; charset=utf-8",
+        headers={
+            "Content-Disposition": "attachment; filename=reporte_multas.csv"
+        },
+    )
