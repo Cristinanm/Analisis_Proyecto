@@ -52,13 +52,28 @@ const cambiarFechaPago = (multaId, fecha) => {
   }));
 };
 
+const obtenerFechaActual = () => {
+  const hoy = new Date();
+  const year = hoy.getFullYear();
+  const month = String(hoy.getMonth() + 1).padStart(2, "0");
+  const day = String(hoy.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};
+
 const manejarPagarMulta = async (multaId) => {
   const fechaPago = fechasPago[multaId];
+  const fechaActual = obtenerFechaActual();
 
   if (!fechaPago) {
     setErrorPago("Debe seleccionar una fecha de pago.");
     return;
   }
+
+  if (new Date(fechaPago + "T00:00:00") > new Date(fechaActual + "T00:00:00")) {
+  setErrorPago("No se puede registrar un pago con una fecha futura.");
+  return;
+}
 
   setErrorPago("");
   setResultadoPago(null);
@@ -192,6 +207,7 @@ return (
                             <div className="flex min-w-[170px] flex-col gap-2">
                               <input
                                 type="date"
+                                max={obtenerFechaActual()}
                                 value={fechasPago[multa.id] || ""}
                                 onChange={(e) =>
                                   cambiarFechaPago(multa.id, e.target.value)

@@ -20,24 +20,56 @@ import {
   TicketIcon,
   UserIcon,
   UsersIcon,
+  MoneyIcon,
+  CitationIcon,
+  VehicleIcon
+
 } from "./components/UiIcons";
 
 import { getMyProfile } from "./services/authApi";
 
 const MODULOS = [
-  { key: "inicio", label: "Inicio", icon: HomeIcon },
-  { key: "multas", label: "Registro de Multas", icon: TicketIcon },
-  { key: "consulta-multas", label: "Consulta por Placa", icon: TicketIcon },
-  { key: "control-infracciones", label: "Control de Infracciones", icon: TicketIcon },
-  { key: "vehiculos", label: "Registro Vehículos", icon: TicketIcon },
-  { key: "busqueda-vehiculos", label: "Búsqueda Vehículos", icon: TicketIcon },
-  { key: "personas", label: "Modulo Personas", icon: UsersIcon },
-  { key: "historial-propietarios", label: "Historial Propietarios", icon: UsersIcon },
-  { key: "reportes", label: "Control de multas", icon: TicketIcon },
-  { key: "ingresos-recaudados", label: "Ingresos Recaudados", icon: TicketIcon },
-  { key: "perfil", label: "Mi Perfil", icon: UserIcon },
-  { key: "usuarios", label: "Gestion Usuarios", icon: UsersIcon },
-  { key: "visor-recibos", label: "Visor de Recibos", icon: TicketIcon },
+  {
+    categoria: "Principal",
+    items: [
+      { key: "inicio", label: "Inicio", icon: HomeIcon },
+    ],
+  },
+  {
+    categoria: "Multas",
+    items: [
+      { key: "multas", label: "Registro de Multas", icon: CitationIcon },
+      { key: "control-infracciones", label: "Control de Infracciones", icon: TicketIcon },
+      { key: "reportes", label: "Reportes de Multas", icon: TicketIcon },
+    ],
+  },
+  {
+    categoria: "Vehículos",
+    items: [
+      { key: "vehiculos", label: "Registro Vehículos", icon: VehicleIcon },
+    ],
+  },
+  {
+    categoria: "Personas",
+    items: [
+      { key: "personas", label: "Registro Propietarios", icon: UsersIcon },
+      { key: "historial-propietarios", label: "Historial Propietarios", icon: UsersIcon },
+    ],
+  },
+  {
+    categoria: "Finanzas",
+    items: [
+      { key: "ingresos-recaudados", label: "Ingresos Recaudados", icon: MoneyIcon },
+      { key: "visor-recibos", label: "Visor de Recibos", icon: TicketIcon },
+    ],
+  },
+  {
+    categoria: "Sistema",
+    items: [
+      { key: "perfil", label: "Mi Perfil", icon: UserIcon },
+      { key: "usuarios", label: "Gestión Usuarios", icon: UsersIcon },
+    ],
+  },
 ];
 
 function App() {
@@ -74,10 +106,6 @@ function App() {
 
     if (moduloActivo === "multas") {
       return <RegistroMultas />;
-    }
-
-    if (moduloActivo === "consulta-multas") {
-      return <ConsultaMultasPorPlaca />;
     }
 
     if (moduloActivo === "control-infracciones") {
@@ -163,20 +191,30 @@ function App() {
             TransitHub
           </h1>
 
-          <nav className="space-y-2">
-            {MODULOS.map((modulo) => (
-              <button
-                key={modulo.key}
-                onClick={() => setModuloActivo(modulo.key)}
-                className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-all duration-200 ${
-                  moduloActivo === modulo.key
-                    ? "bg-blue-600 text-white shadow-lg"
-                    : "text-zinc-300 hover:bg-zinc-800 hover:text-white"
-                }`}
-              >
-                <modulo.icon className="h-5 w-5" />
-                <span className="text-sm font-medium">{modulo.label}</span>
-              </button>
+          <nav className="space-y-6">
+            {MODULOS.map((grupo) => (
+              <div key={grupo.categoria}>
+                <p className="mb-2 px-3 text-xs font-bold uppercase tracking-widest text-zinc-500">
+                  {grupo.categoria}
+                </p>
+
+                <div className="space-y-2">
+                  {grupo.items.map((modulo) => (
+                    <button
+                      key={modulo.key}
+                      onClick={() => setModuloActivo(modulo.key)}
+                      className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-all duration-200 ${
+                        moduloActivo === modulo.key
+                          ? "bg-blue-600 text-white shadow-lg"
+                          : "text-zinc-300 hover:bg-zinc-800 hover:text-white"
+                      }`}
+                    >
+                      <modulo.icon className="h-5 w-5" />
+                      <span className="text-sm font-medium">{modulo.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
             ))}
           </nav>
 

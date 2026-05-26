@@ -16,17 +16,44 @@ export default function BusquedaRecibos() {
   };
 
   const imprimirRecibo = () => {
-    // Abre una ventana de impresión nativa del navegador
     window.print();
   };
 
   return (
-    <section className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-6 text-zinc-100 shadow-2xl">
-      {/* Esta clase 'print:hidden' oculta el buscador cuando se manda a imprimir */}
+    <section className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-6 text-zinc-100 shadow-2xl print:bg-white print:shadow-none print:border-none print:p-0">
+      <style>
+        {`
+          @media print {
+            body * {
+              visibility: hidden;
+            }
+
+            .print-area,
+            .print-area * {
+              visibility: visible;
+            }
+
+            .print-area {
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: 100%;
+              margin: 0;
+              padding: 24px;
+              box-shadow: none !important;
+              border: none !important;
+            }
+
+            @page {
+              margin: 12mm;
+            }
+          }
+        `}
+      </style>
+
       <div className="print:hidden">
         <h2 className="text-2xl font-semibold mb-4">Búsqueda de Recibos Emitidos</h2>
-        
-        {/* Buscador */}
+
         <form onSubmit={handleBuscar} className="flex gap-3 mb-6">
           <input
             type="text"
@@ -35,15 +62,15 @@ export default function BusquedaRecibos() {
             onChange={(e) => setTermino(e.target.value)}
             className="flex-1 p-2 rounded bg-zinc-800 border border-zinc-700 text-white focus:outline-none focus:border-blue-500"
           />
-          <button 
-            type="submit" 
+
+          <button
+            type="submit"
             className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded font-medium transition"
           >
             {buscando ? "Buscando..." : "Buscar"}
           </button>
         </form>
 
-        {/* Tabla de Resultados */}
         <div className="overflow-x-auto mb-8">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -55,6 +82,7 @@ export default function BusquedaRecibos() {
                 <th className="p-3">Acción</th>
               </tr>
             </thead>
+
             <tbody>
               {recibos.length === 0 ? (
                 <tr>
@@ -64,11 +92,16 @@ export default function BusquedaRecibos() {
                 </tr>
               ) : (
                 recibos.map((recibo) => (
-                  <tr key={recibo.id_factura} className="border-b border-zinc-800 hover:bg-zinc-800/50">
+                  <tr
+                    key={recibo.id_factura}
+                    className="border-b border-zinc-800 hover:bg-zinc-800/50"
+                  >
                     <td className="p-3">{recibo.id_factura}</td>
                     <td className="p-3">{recibo.propietario_nombre}</td>
                     <td className="p-3">{recibo.placa_vehiculo}</td>
-                    <td className="p-3 text-green-400 font-bold">Q {recibo.total_pagado.toFixed(2)}</td>
+                    <td className="p-3 text-green-400 font-bold">
+                      Q {Number(recibo.total_pagado || 0).toFixed(2)}
+                    </td>
                     <td className="p-3">
                       <button
                         onClick={() => setReciboSeleccionado(recibo)}
@@ -85,16 +118,18 @@ export default function BusquedaRecibos() {
         </div>
       </div>
 
-      {/* Visor / Detalle del Recibo Seleccionado */}
       {reciboSeleccionado && (
-        <div className="bg-white text-black p-8 rounded-lg shadow-lg max-w-2xl mx-auto border border-gray-200">
+        <div className="print-area bg-white text-black p-8 rounded-lg shadow-lg max-w-2xl mx-auto border border-gray-200 print:max-w-none">
           <div className="flex justify-between items-center mb-6 border-b pb-4">
             <div>
               <h1 className="text-3xl font-bold text-gray-800">COMPROBANTE DE PAGO</h1>
               <p className="text-sm text-gray-500">Municipalidad de San Pedro Pinula</p>
             </div>
+
             <div className="text-right">
-              <p className="font-bold text-red-600 text-xl">NO. {reciboSeleccionado.id_factura}</p>
+              <p className="font-bold text-red-600 text-xl">
+                NO. {reciboSeleccionado.id_factura}
+              </p>
               <p className="text-sm">Fecha: {reciboSeleccionado.fecha_pago}</p>
             </div>
           </div>
@@ -102,11 +137,18 @@ export default function BusquedaRecibos() {
           <div className="mb-6 grid grid-cols-2 gap-4 text-sm">
             <div>
               <p className="text-gray-500 uppercase text-xs font-bold">Propietario</p>
-              <p className="font-medium text-lg">{reciboSeleccionado.propietario_nombre}</p>
+              <p className="font-medium text-lg">
+                {reciboSeleccionado.propietario_nombre}
+              </p>
             </div>
+
             <div>
-              <p className="text-gray-500 uppercase text-xs font-bold">Vehículo (Placa)</p>
-              <p className="font-medium text-lg">{reciboSeleccionado.placa_vehiculo}</p>
+              <p className="text-gray-500 uppercase text-xs font-bold">
+                Vehículo (Placa)
+              </p>
+              <p className="font-medium text-lg">
+                {reciboSeleccionado.placa_vehiculo}
+              </p>
             </div>
           </div>
 
@@ -118,26 +160,31 @@ export default function BusquedaRecibos() {
                 <th className="p-2 border-b text-right">Subtotal</th>
               </tr>
             </thead>
+
             <tbody>
-              {reciboSeleccionado.multas.map((m) => (
+              {reciboSeleccionado.multas?.map((m) => (
                 <tr key={m.id} className="border-b">
                   <td className="p-2">{m.tipo_infraccion}</td>
                   <td className="p-2 text-xs">{m.descripcion}</td>
-                  <td className="p-2 text-right">Q {m.monto_final.toFixed(2)}</td>
+                  <td className="p-2 text-right">
+                    Q {Number(m.monto_final || 0).toFixed(2)}
+                  </td>
                 </tr>
               ))}
             </tbody>
+
             <tfoot>
               <tr>
-                <td colSpan="2" className="p-2 text-right font-bold text-lg">TOTAL COBRADO:</td>
+                <td colSpan="2" className="p-2 text-right font-bold text-lg">
+                  TOTAL COBRADO:
+                </td>
                 <td className="p-2 text-right font-bold text-lg text-green-700">
-                  Q {reciboSeleccionado.total_pagado.toFixed(2)}
+                  Q {Number(reciboSeleccionado.total_pagado || 0).toFixed(2)}
                 </td>
               </tr>
             </tfoot>
           </table>
 
-          {/* Botón de imprimir (se oculta al momento de mandar a papel) */}
           <div className="text-center mt-8 print:hidden">
             <button
               onClick={imprimirRecibo}
@@ -145,6 +192,7 @@ export default function BusquedaRecibos() {
             >
               🖨️ Reimprimir Comprobante
             </button>
+
             <button
               onClick={() => setReciboSeleccionado(null)}
               className="ml-4 bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded"
