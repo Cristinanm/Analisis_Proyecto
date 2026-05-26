@@ -1,6 +1,6 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 from app.models.multa import Multa
 from app.models.vehiculo import Vehiculo
@@ -78,12 +78,19 @@ def pagar_multa(db: Session, multa_id: int, fecha_pago: str):
             detail="Formato de fecha inválido. Use YYYY-MM-DD"
         )
 
+    hoy = date.today()
+
+    if fecha_pago_dt.date() > hoy:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No se puede registrar un pago con una fecha futura"
+        )
+
     if fecha_pago_dt < fecha_notificacion:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="La fecha de pago no puede ser menor a la fecha de notificación"
-        )
-
+    )
     dias_retraso = (fecha_pago_dt - fecha_notificacion).days
     dias_habiles = calcular_dias_habiles(fecha_notificacion, fecha_pago_dt)
 

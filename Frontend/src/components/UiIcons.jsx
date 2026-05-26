@@ -45,3 +45,84 @@ export function LogoutIcon({ className = "h-4 w-4" }) {
     </svg>
   );
 }
+
+export function MoneyIcon(props) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      {...props}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M2.25 7.5h19.5v9h-19.5v-9zm3 2.25a2.25 2.25 0 100 4.5m13.5-4.5a2.25 2.25 0 110 4.5M12 9.75v4.5"
+      />
+    </svg>
+  );
+}
+
+export function FineIcon(props) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      {...props}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M12 9v4m0 4h.01M10.29 3.86l-7.5 13A1 1 0 003.67 18h16.66a1 1 0 00.87-1.5l-7.5-13a1 1 0 00-1.74 0z"
+      />
+    </svg>
+  );
+}
+
+export function CitationIcon(props) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      {...props}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M7.5 3.75h6l4.5 4.5v12a1.5 1.5 0 01-1.5 1.5h-9A1.5 1.5 0 016 20.25v-15A1.5 1.5 0 017.5 3.75z"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M13.5 3.75v4.5H18"
+      />
+    </svg>
+  );
+}
+
+export function VehicleIcon(props) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      {...props}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M3 13.5l1.5-4.5A2.25 2.25 0 016.63 7.5h10.74a2.25 2.25 0 012.13 1.5L21 13.5M5.25 13.5h13.5M6.75 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm10.5 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"
+      />
+    </svg>
+  );
+}
