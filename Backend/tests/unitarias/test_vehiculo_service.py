@@ -96,3 +96,38 @@ def test_crear_vehiculo_elimina_espacios(db):
     assert vehiculo.placa == "P777A3"
     assert vehiculo.marca == "Toyota"
     assert vehiculo.modelo == "Hilux"
+
+def test_listar_vehiculos(client):
+    response = client.get("/api/vehiculos/")
+
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
+
+
+def test_editar_vehiculo(client):
+    payload = {
+        "placa": "P123ABC",
+        "marca": "Honda",
+        "modelo": "Civic",
+        "anio": 2025,
+        "propietario_id": 1
+    }
+
+    response = client.put("/api/vehiculos/1", json=payload)
+
+    assert response.status_code in [200, 404]
+
+    if response.status_code == 200:
+        data = response.json()
+        assert data["marca"] == "Honda"
+        assert data["modelo"] == "Civic"
+
+
+def test_eliminar_vehiculo(client):
+    response = client.delete("/api/vehiculos/1")
+
+    assert response.status_code in [200, 204, 404]
+
+    if response.status_code == 200:
+        data = response.json()
+        assert "mensaje" in data or "detail" in data
