@@ -63,3 +63,10 @@ Usuario administrador precargado:
 - **rol:** `admin`
 
 Puedes iniciar sesión con `usuario` o `correo`.
+
+## Informe de Sprints 
+
+https://github.com/Cristinanm/Analisis_Proyecto/blob/main/INFORME%20SPRINTS.pdf
+
+
+
